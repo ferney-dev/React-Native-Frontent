@@ -17,9 +17,12 @@ import { categoriasApi } from '../../services/api';
 import { Categoria } from '../../types';
 import { showAlert, showConfirm } from '../../services/alerts';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useTheme } from '../../context/ThemeContext';
 
 export default function AdminCategorias() {
   const router = useRouter();
+  const { colorScheme } = useTheme();
+  const isDark = colorScheme === 'dark';
   const [categorias, setCategorias] = useState<Categoria[]>([]);
   const [loading, setLoading] = useState(true);
   const [modalVisible, setModalVisible] = useState(false);
@@ -116,37 +119,37 @@ export default function AdminCategorias() {
     const isExpanded = expandedId === item.id;
     
     return (
-      <View style={[styles.card, isExpanded && styles.cardExpanded]}>
+      <View style={[styles.card, isDark && styles.cardDark, isExpanded && (isDark ? styles.cardExpandedDark : styles.cardExpanded)]}>
         <TouchableOpacity 
           style={styles.cardHeaderRow} 
           onPress={() => item.id && toggleExpand(item.id)}
           activeOpacity={0.7}
         >
-          <View style={[styles.iconBox, { backgroundColor: (item.color || '#dc2626') + '20' }]}>
+          <View style={[styles.iconBox, { backgroundColor: (item.color || '#dc2626') + (isDark ? '40' : '20') }]}>
             <MaterialCommunityIcons name={(item.icono || 'food') as any} size={28} color={item.color || '#dc2626'} />
           </View>
           <View style={styles.info}>
-            <Text style={styles.catName}>{item.nombre}</Text>
+            <Text style={[styles.catName, isDark && styles.textDark]}>{item.nombre}</Text>
             <Text style={styles.catStatus}>Estado: {item.estado || 'activo'}</Text>
           </View>
           <Ionicons 
             name={isExpanded ? "chevron-up" : "chevron-down"} 
             size={20} 
-            color="#9ca3af" 
+            color={isDark ? "#4b5563" : "#9ca3af"} 
           />
         </TouchableOpacity>
 
         {isExpanded && (
-          <View style={styles.expandedContent}>
-            <View style={styles.divider} />
+          <View style={[styles.expandedContent, isDark && styles.expandedContentDark]}>
+            <View style={[styles.divider, isDark && styles.dividerDark]} />
             <View style={styles.detailsGrid}>
               <View style={styles.detailItem}>
                 <Text style={styles.detailLabel}>Icono</Text>
-                <Text style={styles.detailValue}>{item.icono || 'Sin icono'}</Text>
+                <Text style={[styles.detailValue, isDark && styles.subTextDark]}>{item.icono || 'Sin icono'}</Text>
               </View>
               <View style={styles.detailItem}>
                 <Text style={styles.detailLabel}>Color</Text>
-                <Text style={styles.detailValue}>{item.color || '#dc2626'}</Text>
+                <Text style={[styles.detailValue, isDark && styles.subTextDark]}>{item.color || '#dc2626'}</Text>
               </View>
             </View>
             
@@ -175,8 +178,8 @@ export default function AdminCategorias() {
 
 
   return (
-    <View style={styles.container}>
-      <LinearGradient colors={['#b91c1c', '#dc2626']} style={styles.header}>
+    <View style={[styles.container, isDark && styles.containerDark]}>
+      <LinearGradient colors={isDark ? ['#0f172a', '#1e293b'] : ['#b91c1c', '#dc2626']} style={styles.header}>
         <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
           <Ionicons name="arrow-back" size={24} color="#fff" />
         </TouchableOpacity>
@@ -185,7 +188,7 @@ export default function AdminCategorias() {
           <Text style={styles.subtitle}>{categorias.length} categorías registradas</Text>
         </View>
         <TouchableOpacity 
-          style={styles.addBtn} 
+          style={[styles.addBtn, isDark && styles.addBtnDark]} 
           onPress={() => { resetForm(); setModalVisible(true); }}
         >
           <Ionicons name="add" size={28} color="#dc2626" />
@@ -217,43 +220,46 @@ export default function AdminCategorias() {
       {/* Modal CRUD */}
       <Modal visible={modalVisible} animationType="slide" transparent>
         <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
+          <View style={[styles.modalContent, isDark && styles.cardDark]}>
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>
+              <Text style={[styles.modalTitle, isDark && styles.textDark]}>
                 {editingCategoria ? 'Editar Categoría' : 'Nueva Categoría'}
               </Text>
               <TouchableOpacity onPress={() => setModalVisible(false)}>
-                <Ionicons name="close" size={24} color="#1f2937" />
+                <Ionicons name="close" size={24} color={isDark ? "#f8fafc" : "#1f2937"} />
               </TouchableOpacity>
             </View>
 
             <ScrollView>
-              <Text style={styles.label}>Nombre de la categoría</Text>
+              <Text style={[styles.label, isDark && styles.textDark]}>Nombre de la categoría</Text>
               <TextInput
-                style={styles.input}
+                style={[styles.input, isDark && styles.fieldDark, isDark && styles.textDark]}
                 value={formData.nombre}
                 onChangeText={(t) => setFormData({ ...formData, nombre: t })}
                 placeholder="Ej. Hamburguesas"
+                placeholderTextColor={isDark ? "#4b5563" : "#9ca3af"}
               />
 
-              <Text style={styles.label}>Nombre del Icono (MaterialCommunityIcons)</Text>
+              <Text style={[styles.label, isDark && styles.textDark]}>Nombre del Icono (MaterialCommunityIcons)</Text>
               <TextInput
-                style={styles.input}
+                style={[styles.input, isDark && styles.fieldDark, isDark && styles.textDark]}
                 value={formData.icono}
                 onChangeText={(t) => setFormData({ ...formData, icono: t })}
                 placeholder="Ej. food, pizza, coffee"
+                placeholderTextColor={isDark ? "#4b5563" : "#9ca3af"}
               />
 
-              <Text style={styles.label}>Color (Hexadecimal)</Text>
+              <Text style={[styles.label, isDark && styles.textDark]}>Color (Hexadecimal)</Text>
               <TextInput
-                style={styles.input}
+                style={[styles.input, isDark && styles.fieldDark, isDark && styles.textDark]}
                 value={formData.color}
                 onChangeText={(t) => setFormData({ ...formData, color: t })}
                 placeholder="Ej. #dc2626"
+                placeholderTextColor={isDark ? "#4b5563" : "#9ca3af"}
               />
 
               <View style={styles.preview}>
-                <Text style={styles.label}>Vista Previa:</Text>
+                <Text style={[styles.label, isDark && styles.textDark]}>Vista Previa:</Text>
                 <View style={[styles.previewCircle, { backgroundColor: formData.color + '20' }]}>
                    <MaterialCommunityIcons name={formData.icono as any} size={30} color={formData.color} />
                 </View>
@@ -368,7 +374,18 @@ const styles = StyleSheet.create({
   },
   emptyBtnText: {
     color: '#dc2626', fontWeight: 'bold'
-  }
+  },
+
+  // Dark modes
+  containerDark: { backgroundColor: '#020617' },
+  textDark: { color: '#f8fafc' },
+  subTextDark: { color: '#94a3b8' },
+  cardDark: { backgroundColor: '#0f172a', borderColor: '#1e293b' },
+  cardExpandedDark: { borderColor: '#dc2626', borderWidth: 1.5 },
+  fieldDark: { backgroundColor: '#1e293b', borderColor: '#334155' },
+  addBtnDark: { backgroundColor: '#0f172a', borderColor: '#1e293b' },
+  expandedContentDark: { backgroundColor: '#0f172a' },
+  dividerDark: { backgroundColor: '#1e293b' },
 });
 
 

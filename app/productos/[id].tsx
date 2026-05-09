@@ -13,9 +13,12 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { productosApi, categoriasApi, favoritosApi, carritoApi } from '../../services/api';
 import { Producto, Categoria } from '../../types';
+import { useTheme } from '../../context/ThemeContext';
 
 export default function ProductosScreen() {
   const router = useRouter();
+  const { colorScheme } = useTheme();
+  const isDark = colorScheme === 'dark';
   const params = useLocalSearchParams();
   const [productos, setProductos] = useState<Producto[]>([]);
   const [categoria, setCategoria] = useState<Categoria | null>(null);
@@ -130,25 +133,18 @@ export default function ProductosScreen() {
 
   if (loading) {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#fff5f5' }}>
+      <View className="flex-1 justify-center items-center bg-[#fff5f5] dark:bg-slate-950">
         <ActivityIndicator size="large" color="#dc2626" />
-        <Text style={{ marginTop: 10, color: '#7f1d1d' }}>Cargando productos...</Text>
+        <Text className="mt-[10px] text-red-900 dark:text-red-400">Cargando productos...</Text>
       </View>
     );
   }
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#fff5f5' }}>
+    <View className="flex-1 bg-[#fff5f5] dark:bg-slate-950">
       {/* HEADER */}
       <View
-        style={{
-          backgroundColor: '#b91c1c',
-          paddingTop: 60,
-          paddingBottom: 20,
-          paddingHorizontal: 20,
-          borderBottomLeftRadius: 30,
-          borderBottomRightRadius: 30,
-        }}
+        className="bg-[#b91c1c] dark:bg-slate-900 pt-[60px] pb-5 px-5 rounded-b-[30px]"
       >
         <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 10 }}>
           <TouchableOpacity onPress={() => router.back()}>
@@ -175,7 +171,7 @@ export default function ProductosScreen() {
       >
         {productos.length === 0 ? (
           <View style={{ alignItems: 'center', marginTop: 50 }}>
-            <Text style={{ fontSize: 18, color: '#6b7280' }}>
+            <Text className="text-lg text-gray-500 dark:text-gray-400">
               No hay productos disponibles
             </Text>
           </View>
@@ -183,30 +179,11 @@ export default function ProductosScreen() {
           productos.map((producto) => (
             <View
               key={producto.id?.toString() || producto.nombre}
-              style={{
-                backgroundColor: '#fff',
-                borderRadius: 25,
-                padding: 18,
-                marginBottom: 18,
-                flexDirection: 'row',
-                alignItems: 'center',
-                shadowColor: '#000',
-                shadowOffset: { width: 0, height: 5 },
-                shadowOpacity: 0.08,
-                shadowRadius: 8,
-                elevation: 4,
-              }}
+              className="bg-white dark:bg-slate-900 rounded-[25px] p-[18px] mb-[18px] flex-row items-center shadow-sm border border-gray-50 dark:border-slate-800"
             >
               {/* IMAGEN/EMOJI */}
               <View
-                style={{
-                  width: 85,
-                  height: 85,
-                  borderRadius: 22,
-                  backgroundColor: '#fee2e2',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                }}
+                className="w-[85px] h-[85px] rounded-[22px] bg-red-100 dark:bg-red-900/20 justify-center items-center"
               >
                 <Text style={{ fontSize: 45 }}>{producto.emoji || '🍽️'}</Text>
               </View>
@@ -214,22 +191,14 @@ export default function ProductosScreen() {
               {/* INFO */}
               <View style={{ flex: 1, marginLeft: 16 }}>
                 <Text
-                  style={{
-                    fontSize: 18,
-                    fontWeight: 'bold',
-                    color: '#111827',
-                  }}
+                  className="text-lg font-bold text-gray-900 dark:text-gray-100"
                 >
                   {producto.nombre}
                 </Text>
 
                 {producto.descripcion && (
                   <Text
-                    style={{
-                      color: '#6b7280',
-                      marginTop: 5,
-                      fontSize: 13,
-                    }}
+                    className="text-gray-500 dark:text-gray-400 mt-[5px] text-[13px]"
                   >
                     {producto.descripcion}
                   </Text>
@@ -267,7 +236,7 @@ export default function ProductosScreen() {
                 </View>
 
                 {producto.categoria_nombre && (
-                  <Text style={{ color: '#6b7280', fontSize: 12, marginTop: 5 }}>
+                  <Text className="text-gray-500 dark:text-gray-400 text-xs mt-[5px]">
                     {producto.categoria_nombre}
                   </Text>
                 )}
@@ -291,20 +260,13 @@ export default function ProductosScreen() {
                 </TouchableOpacity>
                 
                 <TouchableOpacity
-                  style={{
-                    backgroundColor: '#fee2e2',
-                    width: 50,
-                    height: 50,
-                    borderRadius: 16,
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                  }}
+                  className="bg-red-100 dark:bg-red-900/30 w-[50px] h-[50px] rounded-2xl justify-center items-center"
                   onPress={() => toggleFavorito(producto)}
                 >
                   <Ionicons 
                     name={favoritos.includes(producto.id || 0) ? "heart" : "heart-outline"} 
                     size={24} 
-                    color={favoritos.includes(producto.id || 0) ? "#dc2626" : "#dc2626"} 
+                    color="#dc2626" 
                   />
                 </TouchableOpacity>
               </View>

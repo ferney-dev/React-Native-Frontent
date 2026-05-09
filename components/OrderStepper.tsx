@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useTheme } from '../context/ThemeContext';
 
 interface OrderStepperProps {
   status: 'pendiente' | 'preparando' | 'en_camino' | 'entregado';
@@ -14,6 +15,8 @@ const steps = [
 ];
 
 export const OrderStepper = ({ status }: OrderStepperProps) => {
+  const { colorScheme } = useTheme();
+  const isDark = colorScheme === 'dark';
   const currentStepIndex = steps.findIndex(step => step.id === status);
 
   return (
@@ -28,6 +31,7 @@ export const OrderStepper = ({ status }: OrderStepperProps) => {
               <View
                 style={[
                   styles.circle,
+                  isDark && styles.circleDark,
                   isActive && styles.activeCircle,
                   isCurrent && styles.currentCircle,
                 ]}
@@ -35,13 +39,14 @@ export const OrderStepper = ({ status }: OrderStepperProps) => {
                 <Ionicons
                   name={step.icon as any}
                   size={24}
-                  color={isActive ? '#fff' : '#9ca3af'}
+                  color={isActive ? '#fff' : (isDark ? '#4b5563' : '#9ca3af')}
                 />
               </View>
               {index < steps.length - 1 && (
                 <View
                   style={[
                     styles.line,
+                    isDark && styles.lineDark,
                     index < currentStepIndex && styles.activeLine,
                   ]}
                 />
@@ -50,7 +55,9 @@ export const OrderStepper = ({ status }: OrderStepperProps) => {
             <Text
               style={[
                 styles.label,
+                isDark && styles.labelDark,
                 isActive && styles.activeLabel,
+                isActive && isDark && styles.activeLabelDark,
                 isCurrent && styles.currentLabel,
               ]}
             >
@@ -127,5 +134,18 @@ const styles = StyleSheet.create({
   currentLabel: {
     color: '#dc2626',
     fontWeight: 'bold',
+  },
+  circleDark: {
+    backgroundColor: '#0f172a',
+    borderColor: '#1e293b',
+  },
+  lineDark: {
+    backgroundColor: '#1e293b',
+  },
+  labelDark: {
+    color: '#4b5563',
+  },
+  activeLabelDark: {
+    color: '#94a3b8',
   },
 });

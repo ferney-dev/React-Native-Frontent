@@ -22,6 +22,7 @@ import { useRouter } from 'expo-router';
 import { authApi } from '../services/api';
 import { showAlert } from '../services/alerts';
 import * as ImagePicker from 'expo-image-picker';
+import { useTheme } from '../context/ThemeContext';
 
 
 
@@ -42,8 +43,13 @@ const InputField = ({
   onToggleSecure,
   focusedInput,
   setFocusedInput,
+  isDark
 }: any) => (
-  <View style={[styles.field, focusedInput === id && styles.fieldFocused]}>
+  <View style={[
+    styles.field, 
+    isDark && styles.fieldDark,
+    focusedInput === id && (isDark ? styles.fieldFocusedDark : styles.fieldFocused)
+  ]}>
     <Ionicons
       name={icon}
       size={18}
@@ -51,9 +57,9 @@ const InputField = ({
       style={styles.fieldIcon}
     />
     <TextInput
-      style={styles.input}
+      style={[styles.input, isDark && styles.textDark]}
       placeholder={placeholder}
-      placeholderTextColor="#c4c9d4"
+      placeholderTextColor={isDark ? "#4b5563" : "#c4c9d4"}
       value={value}
       onChangeText={onChangeText}
       keyboardType={keyboardType}
@@ -77,6 +83,8 @@ const InputField = ({
 
 export default function RegisterScreen() {
   const router = useRouter();
+  const { colorScheme } = useTheme();
+  const isDark = colorScheme === 'dark';
   const [nombre, setNombre] = useState('');
   const [telefono, setTelefono] = useState('');
   const [correo, setCorreo] = useState('');
@@ -169,10 +177,10 @@ export default function RegisterScreen() {
 
   return (
     <KeyboardAvoidingView
-      style={styles.container}
+      style={[styles.container, isDark && styles.containerDark]}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
-      <StatusBar barStyle="dark-content" backgroundColor="#fff" />
+      <StatusBar barStyle={isDark ? "light-content" : "dark-content"} backgroundColor={isDark ? "#020617" : "#fff"} />
 
       {/* Decoraciones de fondo */}
       <View style={styles.blob1} />
@@ -188,16 +196,16 @@ export default function RegisterScreen() {
           <View style={styles.logoInner}>
             <Text style={styles.logoEmoji}>🍔</Text>
           </View>
-          <Text style={styles.appName}>
+          <Text style={[styles.appName, isDark && styles.textDark]}>
             Food<Text style={styles.appRed}>Express</Text>
           </Text>
-          <Text style={styles.appSub}>Únete a nuestra comunidad gourmet</Text>
+          <Text style={[styles.appSub, isDark && styles.subTextDark]}>Únete a nuestra comunidad gourmet</Text>
         </Animated.View>
 
         {/* Card */}
-        <Animated.View style={[styles.card, { opacity: fadeIn, transform: [{ translateY: slideUp }] }]}>
-          <Text style={styles.cardTitle}>Crear Cuenta</Text>
-          <Text style={styles.cardSub}>Regístrate y disfruta de beneficios exclusivos 🍕</Text>
+        <Animated.View style={[styles.card, isDark && styles.cardDark, { opacity: fadeIn, transform: [{ translateY: slideUp }] }]}>
+          <Text style={[styles.cardTitle, isDark && styles.textDark]}>Crear Cuenta</Text>
+          <Text style={[styles.cardSub, isDark && styles.subTextDark]}>Regístrate y disfruta de beneficios exclusivos 🍕</Text>
 
           {/* Selector de Foto de Perfil */}
           <View style={{ alignItems: 'center', marginBottom: 25 }}>
@@ -206,9 +214,9 @@ export default function RegisterScreen() {
                 width: 100,
                 height: 100,
                 borderRadius: 50,
-                backgroundColor: '#f3f4f6',
+                backgroundColor: isDark ? '#1e293b' : '#f3f4f6',
                 borderWidth: 2,
-                borderColor: foto ? RED : '#e5e7eb',
+                borderColor: foto ? RED : (isDark ? '#334155' : '#e5e7eb'),
                 justifyContent: 'center',
                 alignItems: 'center',
                 overflow: 'hidden'
@@ -252,6 +260,7 @@ export default function RegisterScreen() {
             autoCapitalize="words"
             focusedInput={focusedInput}
             setFocusedInput={setFocusedInput}
+            isDark={isDark}
           />
 
 
@@ -265,6 +274,7 @@ export default function RegisterScreen() {
             maxLength={10}
             focusedInput={focusedInput}
             setFocusedInput={setFocusedInput}
+            isDark={isDark}
           />
 
 
@@ -277,6 +287,7 @@ export default function RegisterScreen() {
             keyboardType="email-address"
             focusedInput={focusedInput}
             setFocusedInput={setFocusedInput}
+            isDark={isDark}
           />
 
 
@@ -294,6 +305,7 @@ export default function RegisterScreen() {
             onToggleSecure={() => setShowPassword(!showPassword)}
             focusedInput={focusedInput}
             setFocusedInput={setFocusedInput}
+            isDark={isDark}
           />
 
 
@@ -307,6 +319,7 @@ export default function RegisterScreen() {
             onToggleSecure={() => setShowConfirmPassword(!showConfirmPassword)}
             focusedInput={focusedInput}
             setFocusedInput={setFocusedInput}
+            isDark={isDark}
           />
 
 
@@ -445,4 +458,12 @@ const styles = StyleSheet.create({
   loginBtnTxt: { color: RED, fontSize: 14, fontWeight: '600' },
 
   footer: { textAlign: 'center', color: '#d1d5db', fontSize: 10, marginTop: 24 },
+
+  // Dark styles
+  containerDark: { backgroundColor: '#020617' },
+  textDark: { color: '#f8fafc' },
+  subTextDark: { color: '#94a3b8' },
+  cardDark: { backgroundColor: '#0f172a', borderColor: '#1e293b' },
+  fieldDark: { backgroundColor: '#1e293b', borderColor: '#334155' },
+  fieldFocusedDark: { borderColor: RED, backgroundColor: '#1e1b1b' },
 });

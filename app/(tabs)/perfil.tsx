@@ -20,6 +20,8 @@ import * as Haptics from 'expo-haptics';
 import { AnimatedButton } from '../../components/AnimatedButton';
 import { OrderStepper } from '../../components/OrderStepper';
 import * as ImagePicker from 'expo-image-picker';
+import { useTheme } from '../../context/ThemeContext';
+import { Switch } from 'react-native';
 
 
 
@@ -27,6 +29,8 @@ import * as ImagePicker from 'expo-image-picker';
 
 export default function PerfilScreen() {
   const router = useRouter();
+  const { colorScheme, toggleColorScheme } = useTheme();
+  const isDark = colorScheme === 'dark';
   const [usuario, setUsuario] = useState<Usuario | null>(null);
 
   const [pedidos, setPedidos] = useState<Pedido[]>([]);
@@ -242,24 +246,17 @@ export default function PerfilScreen() {
 
   if (loading) {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#fff5f5' }}>
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: isDark ? '#020617' : '#fff5f5' }}>
         <ActivityIndicator size="large" color="#dc2626" />
-        <Text style={{ marginTop: 10, color: '#7f1d1d' }}>Cargando perfil...</Text>
+        <Text style={{ marginTop: 10, color: isDark ? '#f8fafc' : '#7f1d1d' }}>Cargando perfil...</Text>
       </View>
     );
   }
   return (
-    <View style={{ flex: 1, backgroundColor: '#fff5f5' }}>
+    <View style={{ flex: 1 }} className="bg-[#fff5f5] dark:bg-slate-950">
       {/* HEADER */}
       <View
-        style={{
-          backgroundColor: '#b91c1c',
-          paddingTop: 60,
-          paddingBottom: 20,
-          paddingHorizontal: 20,
-          borderBottomLeftRadius: 30,
-          borderBottomRightRadius: 30,
-        }}
+        className="bg-[#b91c1c] dark:bg-slate-900 pt-[60px] pb-5 px-5 rounded-b-[30px]"
       >
         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
           <Text
@@ -272,7 +269,17 @@ export default function PerfilScreen() {
             Mi Perfil 👤
           </Text>
           
-          <View style={{ flexDirection: 'row', gap: 10 }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5, backgroundColor: 'rgba(255,255,255,0.15)', paddingHorizontal: 10, paddingVertical: 5, borderRadius: 20 }}>
+               <Ionicons name={colorScheme === 'dark' ? "moon" : "sunny"} size={18} color="#fff" />
+               <Switch 
+                 value={colorScheme === 'dark'} 
+                 onValueChange={toggleColorScheme}
+                 trackColor={{ false: "#767577", true: "#fecaca" }}
+                 thumbColor={colorScheme === 'dark' ? "#fff" : "#f4f3f4"}
+               />
+            </View>
+
             <AnimatedButton
               haptic={Haptics.ImpactFeedbackStyle.Light}
               style={{
@@ -303,8 +310,6 @@ export default function PerfilScreen() {
               <Ionicons name="log-out-outline" size={20} color="#dc2626" />
             </AnimatedButton>
           </View>
-
-
         </View>
       </View>
 
@@ -312,24 +317,10 @@ export default function PerfilScreen() {
         {/* PUNTOS Y FIDELIZACIÓN */}
         {!editando && (
           <View
-            style={{
-              backgroundColor: '#fff',
-              borderRadius: 25,
-              padding: 20,
-              marginBottom: 20,
-              flexDirection: 'row',
-              alignItems: 'center',
-              shadowColor: '#f59e0b',
-              shadowOffset: { width: 0, height: 4 },
-              shadowOpacity: 0.1,
-              shadowRadius: 10,
-              elevation: 4,
-              borderWidth: 1,
-              borderColor: '#fef3c7'
-            }}
+            className="bg-white dark:bg-slate-900 rounded-[25px] p-5 mb-5 flex-row items-center border border-[#fef3c7] dark:border-amber-900/30 shadow-sm"
           >
             <View style={{
-              backgroundColor: '#fffbeb',
+              backgroundColor: isDark ? '#dc262620' : '#fffbeb',
               width: 50,
               height: 50,
               borderRadius: 25,
@@ -367,18 +358,10 @@ export default function PerfilScreen() {
         {/* INFO DE USUARIO */}
 
         {usuario && (
-          <View style={{
-            backgroundColor: '#fff',
-            borderRadius: 25,
-            padding: 20,
-            marginBottom: 20,
-            shadowColor: '#000',
-            shadowOffset: { width: 0, height: 5 },
-            shadowOpacity: 0.08,
-            shadowRadius: 8,
-            elevation: 4,
-          }}>
-            <Text style={{ fontSize: 18, fontWeight: 'bold', color: '#7f1d1d', marginBottom: 15 }}>
+          <View 
+            className="bg-white dark:bg-slate-900 rounded-[25px] p-5 mb-5 shadow-sm border border-gray-50 dark:border-slate-800"
+          >
+            <Text className="text-lg font-bold text-red-900 dark:text-red-400 mb-4">
               Información Personal
             </Text>
             
@@ -390,12 +373,12 @@ export default function PerfilScreen() {
                     width: 110,
                     height: 110,
                     borderRadius: 55,
-                    backgroundColor: '#fee2e2',
+                    backgroundColor: isDark ? '#dc262620' : '#fee2e2',
                     justifyContent: 'center',
                     alignItems: 'center',
                     overflow: 'hidden',
                     borderWidth: 3,
-                    borderColor: '#fff',
+                    borderColor: isDark ? '#1e293b' : '#fff',
                     elevation: 5,
                     shadowColor: '#000',
                     shadowOffset: { width: 0, height: 4 },
@@ -443,91 +426,66 @@ export default function PerfilScreen() {
             {/* FORMULARIO */}
             <View style={{ gap: 15 }}>
               <View>
-                <Text style={{ color: '#6b7280', fontSize: 14, marginBottom: 5 }}>Nombre</Text>
+                <Text className="text-gray-500 dark:text-gray-400 text-sm mb-1">Nombre</Text>
                 {editando ? (
                   <TextInput
-                    style={{
-                      backgroundColor: '#f9fafb',
-                      borderWidth: 1,
-                      borderColor: '#dc2626',
-                      borderRadius: 10,
-                      padding: 15,
-                      fontSize: 16,
-                    }}
+                    className="bg-gray-50 dark:bg-slate-800 border border-red-600 dark:border-red-500 rounded-xl p-[15px] text-base text-gray-900 dark:text-gray-100"
                     value={formData.nombre}
                     onChangeText={(text) => setFormData({ ...formData, nombre: text })}
                     placeholder="Tu nombre"
+                    placeholderTextColor="#9ca3af"
                   />
                 ) : (
-                  <Text style={{ fontSize: 16, color: '#374151' }}>{usuario.nombre}</Text>
+                  <Text className="text-base text-gray-700 dark:text-gray-200">{usuario.nombre}</Text>
                 )}
               </View>
 
               <View>
-                <Text style={{ color: '#6b7280', fontSize: 14, marginBottom: 5 }}>Teléfono</Text>
+                <Text className="text-gray-500 dark:text-gray-400 text-sm mb-1">Teléfono</Text>
                 {editando ? (
                   <TextInput
-                    style={{
-                      backgroundColor: '#f9fafb',
-                      borderWidth: 1,
-                      borderColor: '#dc2626',
-                      borderRadius: 10,
-                      padding: 15,
-                      fontSize: 16,
-                    }}
+                    className="bg-gray-50 dark:bg-slate-800 border border-red-600 dark:border-red-500 rounded-xl p-[15px] text-base text-gray-900 dark:text-gray-100"
                     value={formData.telefono}
                     onChangeText={(text) => setFormData({ ...formData, telefono: text })}
                     placeholder="Tu teléfono"
+                    placeholderTextColor="#9ca3af"
                     keyboardType="phone-pad"
                   />
                 ) : (
-                  <Text style={{ fontSize: 16, color: '#374151' }}>{usuario.telefono}</Text>
+                  <Text className="text-base text-gray-700 dark:text-gray-200">{usuario.telefono}</Text>
                 )}
               </View>
 
               <View>
-                <Text style={{ color: '#6b7280', fontSize: 14, marginBottom: 5 }}>Correo</Text>
+                <Text className="text-gray-500 dark:text-gray-400 text-sm mb-1">Correo</Text>
                 {editando ? (
                   <TextInput
-                    style={{
-                      backgroundColor: '#f9fafb',
-                      borderWidth: 1,
-                      borderColor: '#dc2626',
-                      borderRadius: 10,
-                      padding: 15,
-                      fontSize: 16,
-                    }}
+                    className="bg-gray-50 dark:bg-slate-800 border border-red-600 dark:border-red-500 rounded-xl p-[15px] text-base text-gray-900 dark:text-gray-100"
                     value={formData.correo}
                     onChangeText={(text) => setFormData({ ...formData, correo: text })}
                     placeholder="Tu correo"
+                    placeholderTextColor="#9ca3af"
                     keyboardType="email-address"
                   />
                 ) : (
-                  <Text style={{ fontSize: 16, color: '#374151' }}>{usuario.correo || 'No especificado'}</Text>
+                  <Text className="text-base text-gray-700 dark:text-gray-200">{usuario.correo || 'No especificado'}</Text>
                 )}
               </View>
 
               <View>
-                <Text style={{ color: '#6b7280', fontSize: 14, marginBottom: 5 }}>Dirección</Text>
+                <Text className="text-gray-500 dark:text-gray-400 text-sm mb-1">Dirección</Text>
                 {editando ? (
                   <TextInput
-                    style={{
-                      backgroundColor: '#f9fafb',
-                      borderWidth: 1,
-                      borderColor: '#dc2626',
-                      borderRadius: 10,
-                      padding: 15,
-                      fontSize: 16,
-                      height: 80,
-                      textAlignVertical: 'top',
-                    }}
+                    className="bg-gray-50 dark:bg-slate-800 border border-red-600 dark:border-red-500 rounded-xl p-[15px] text-base text-gray-900 dark:text-gray-100 h-20"
                     value={formData.direccion}
                     onChangeText={(text) => setFormData({ ...formData, direccion: text })}
                     placeholder="Tu dirección"
+                    placeholderTextColor="#9ca3af"
                     multiline
+                    textAlignVertical="top"
                   />
                 ) : (
-                  <Text style={{ fontSize: 16, color: '#374151' }}>{usuario.direccion || 'No especificada'}</Text>
+                  <Text className="text-base text-gray-700 dark:text-gray-200">{usuario.direccion || 'No especificada'}</Text>
                 )}
               </View>
 
@@ -575,18 +533,10 @@ export default function PerfilScreen() {
         )}
 
         {/* HISTORIAL DE PEDIDOS */}
-        <View style={{
-          backgroundColor: '#fff',
-          borderRadius: 25,
-          padding: 20,
-          marginBottom: 30,
-          shadowColor: '#000',
-          shadowOffset: { width: 0, height: 5 },
-          shadowOpacity: 0.08,
-          shadowRadius: 8,
-          elevation: 4,
-        }}>
-          <Text style={{ fontSize: 18, fontWeight: 'bold', color: '#7f1d1d', marginBottom: 15 }}>
+        <View 
+          className="bg-white dark:bg-slate-900 rounded-[25px] p-5 mb-10 shadow-sm border border-gray-50 dark:border-slate-800"
+        >
+          <Text className="text-lg font-bold text-red-900 dark:text-red-400 mb-4">
             Mis Pedidos 📦
           </Text>
           
@@ -604,12 +554,8 @@ export default function PerfilScreen() {
             pedidos.map((pedido) => (
               <View
                 key={pedido.id?.toString()}
+                className="bg-gray-50 dark:bg-slate-800/50 rounded-2xl p-4 mb-3 border-l-4"
                 style={{
-                  backgroundColor: '#f9fafb',
-                  borderRadius: 15,
-                  padding: 15,
-                  marginBottom: 12,
-                  borderLeftWidth: 4,
                   borderLeftColor: getEstadoColor(pedido.estado),
                 }}
               >
@@ -660,7 +606,7 @@ export default function PerfilScreen() {
                   marginTop: 10,
                   paddingTop: 10,
                   borderTopWidth: 1,
-                  borderTopColor: '#e5e7eb'
+                  borderTopColor: isDark ? '#1e293b' : '#e5e7eb'
                 }}>
                   <Text style={{ fontSize: 16, fontWeight: 'bold', color: '#dc2626' }}>
                     {formatPrice(pedido.total)}

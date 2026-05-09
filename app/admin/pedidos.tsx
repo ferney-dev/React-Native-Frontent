@@ -14,9 +14,12 @@ import { pedidosApi } from '../../services/api';
 import { Pedido } from '../../types';
 import { showAlert } from '../../services/alerts';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useTheme } from '../../context/ThemeContext';
 
 export default function AdminPedidos() {
   const router = useRouter();
+  const { colorScheme } = useTheme();
+  const isDark = colorScheme === 'dark';
   const [pedidos, setPedidos] = useState<Pedido[]>([]);
   const [loading, setLoading] = useState(true);
   const [expandedId, setExpandedId] = useState<number | null>(null);
@@ -68,15 +71,15 @@ export default function AdminPedidos() {
     const isExpanded = expandedId === item.id;
     
     return (
-      <View style={[styles.card, isExpanded && styles.cardExpanded]}>
+      <View style={[styles.card, isDark && styles.cardDark, isExpanded && styles.cardExpanded]}>
         <TouchableOpacity 
           style={styles.cardHeader} 
           onPress={() => item.id && toggleExpand(item.id)}
           activeOpacity={0.7}
         >
           <View style={{ flex: 1 }}>
-            <Text style={styles.orderId}>Pedido #{item.id}</Text>
-            <Text style={styles.orderDate}>{new Date(item.fecha!).toLocaleDateString()}</Text>
+            <Text style={[styles.orderId, isDark && styles.textDark]}>Pedido #{item.id}</Text>
+            <Text style={[styles.orderDate, isDark && styles.subTextDark]}>{new Date(item.fecha!).toLocaleDateString()}</Text>
           </View>
           <View style={[styles.statusBadge, { backgroundColor: getStatusColor(item.estado) + '20' }]}>
             <Text style={[styles.statusText, { color: getStatusColor(item.estado) }]}>
@@ -86,28 +89,28 @@ export default function AdminPedidos() {
           <Ionicons 
             name={isExpanded ? "chevron-up" : "chevron-down"} 
             size={20} 
-            color="#9ca3af" 
+            color={isDark ? "#4b5563" : "#9ca3af"} 
             style={{ marginLeft: 10 }}
           />
         </TouchableOpacity>
 
         {isExpanded && (
-          <View style={styles.expandedContent}>
-            <View style={styles.divider} />
+          <View style={[styles.expandedContent, isDark && styles.expandedContentDark]}>
+            <View style={[styles.divider, isDark && styles.dividerDark]} />
             
             <View style={styles.detailsGrid}>
               <View style={styles.detailItem}>
-                <Ionicons name="person-outline" size={14} color="#6b7280" />
-                <Text style={styles.detailText}>{item.usuario_nombre || 'Desconocido'}</Text>
+                <Ionicons name="person-outline" size={14} color={isDark ? "#94a3b8" : "#6b7280"} />
+                <Text style={[styles.detailText, isDark && styles.subTextDark]}>{item.usuario_nombre || 'Desconocido'}</Text>
               </View>
               <View style={styles.detailItem}>
-                <Ionicons name="location-outline" size={14} color="#6b7280" />
-                <Text style={styles.detailText}>{item.direccion || 'Sin dirección'}</Text>
+                <Ionicons name="location-outline" size={14} color={isDark ? "#94a3b8" : "#6b7280"} />
+                <Text style={[styles.detailText, isDark && styles.subTextDark]}>{item.direccion || 'Sin dirección'}</Text>
               </View>
             </View>
 
-            <View style={styles.totalRow}>
-              <Text style={styles.totalLabel}>Total a pagar:</Text>
+            <View style={[styles.totalRow, isDark && styles.fieldDark]}>
+              <Text style={[styles.totalLabel, isDark && styles.textDark]}>Total a pagar:</Text>
               <Text style={styles.totalValue}>${Number(item.total).toLocaleString()}</Text>
             </View>
 
@@ -140,8 +143,8 @@ export default function AdminPedidos() {
 
 
   return (
-    <View style={styles.container}>
-      <LinearGradient colors={['#b91c1c', '#dc2626']} style={styles.header}>
+    <View style={[styles.container, isDark && styles.containerDark]}>
+      <LinearGradient colors={isDark ? ['#0f172a', '#1e293b'] : ['#b91c1c', '#dc2626']} style={styles.header}>
         <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
           <Ionicons name="arrow-back" size={24} color="#fff" />
         </TouchableOpacity>
@@ -149,7 +152,7 @@ export default function AdminPedidos() {
           <Text style={styles.title}>Pedidos</Text>
           <Text style={styles.subtitle}>{pedidos.length} pedidos totales</Text>
         </View>
-        <TouchableOpacity style={styles.refreshBtn} onPress={loadPedidos}>
+        <TouchableOpacity style={[styles.refreshBtn, isDark && styles.refreshBtnDark]} onPress={loadPedidos}>
           <Ionicons name="refresh" size={24} color="#dc2626" />
         </TouchableOpacity>
       </LinearGradient>
@@ -245,7 +248,17 @@ const styles = StyleSheet.create({
   },
   emptyBtnText: {
     color: '#dc2626', fontWeight: 'bold'
-  }
+  },
+
+  // Dark modes
+  containerDark: { backgroundColor: '#020617' },
+  textDark: { color: '#f8fafc' },
+  subTextDark: { color: '#94a3b8' },
+  cardDark: { backgroundColor: '#0f172a', borderColor: '#1e293b' },
+  fieldDark: { backgroundColor: '#0f172a', borderColor: '#1e293b' },
+  refreshBtnDark: { backgroundColor: '#0f172a', borderColor: '#1e293b' },
+  expandedContentDark: { backgroundColor: '#0f172a' },
+  dividerDark: { backgroundColor: '#1e293b' },
 });
 
 

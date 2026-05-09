@@ -18,11 +18,14 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { productosApi, favoritosApi, carritoApi } from '../../services/api';
 import { showAlert } from '../../services/alerts';
 import { Producto, Usuario } from '../../types';
+import { useTheme } from '../../context/ThemeContext';
 
 const { width, height } = Dimensions.get('window');
 
 export default function ProductoDetalleScreen() {
   const router = useRouter();
+  const { colorScheme } = useTheme();
+  const isDark = colorScheme === 'dark';
   const params = useLocalSearchParams();
   const [producto, setProducto] = useState<Producto | null>(null);
   const [productosRelacionados, setProductosRelacionados] = useState<Producto[]>([]);
@@ -149,7 +152,7 @@ export default function ProductoDetalleScreen() {
 
   if (loading) {
     return (
-      <View style={styles.loadingContainer}>
+      <View style={[styles.loadingContainer, isDark && styles.containerDark]}>
         <ActivityIndicator size="large" color="#dc2626" />
       </View>
     );
@@ -157,14 +160,14 @@ export default function ProductoDetalleScreen() {
 
   if (!producto) {
     return (
-      <View style={styles.errorContainer}>
-        <Text style={styles.errorText}>Producto no encontrado</Text>
+      <View style={[styles.errorContainer, isDark && styles.containerDark]}>
+        <Text style={[styles.errorText, isDark && styles.textDark]}>Producto no encontrado</Text>
       </View>
     );
   }
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, isDark && styles.containerDark]}>
       <StatusBar barStyle="light-content" translucent backgroundColor="transparent" />
       
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 120 }}>
@@ -197,7 +200,7 @@ export default function ProductoDetalleScreen() {
             </TouchableOpacity>
           </View>
 
-          <View style={styles.badgeContainer}>
+          <View style={[styles.badgeContainer, isDark && styles.cardDark]}>
             <Text style={styles.badgeEmoji}>{producto.emoji || '🍕'}</Text>
           </View>
         </View>
@@ -207,46 +210,46 @@ export default function ProductoDetalleScreen() {
           <View style={styles.mainInfo}>
             <View style={{ flex: 1 }}>
               <Text style={styles.categoryName}>{producto.categoria_nombre || 'Especialidad'}</Text>
-              <Text style={styles.productName}>{producto.nombre}</Text>
+              <Text style={[styles.productName, isDark && styles.textDark]}>{producto.nombre}</Text>
             </View>
-            <View style={styles.priceTag}>
+            <View style={[styles.priceTag, isDark && styles.priceTagDark]}>
               <Text style={styles.priceSymbol}>$</Text>
               <Text style={styles.priceValue}>{Number(producto.precio).toLocaleString()}</Text>
             </View>
           </View>
 
-          <View style={styles.divider} />
+          <View style={[styles.divider, isDark && styles.dividerDark]} />
 
-          <Text style={styles.sectionTitle}>Descripción</Text>
-          <Text style={styles.productDescription}>{producto.descripcion}</Text>
+          <Text style={[styles.sectionTitle, isDark && styles.textDark]}>Descripción</Text>
+          <Text style={[styles.productDescription, isDark && styles.subTextDark]}>{producto.descripcion}</Text>
 
           <View style={styles.optionsRow}>
-            <View style={styles.quantityControl}>
+            <View style={[styles.quantityControl, isDark && styles.fieldDark]}>
               <TouchableOpacity 
-                style={styles.qtyBtn}
+                style={[styles.qtyBtn, isDark && styles.qtyBtnDark]}
                 onPress={() => setCantidad(Math.max(1, cantidad - 1))}
               >
-                <Ionicons name="remove" size={20} color="#1f2937" />
+                <Ionicons name="remove" size={20} color={isDark ? "#fff" : "#1f2937"} />
               </TouchableOpacity>
-              <Text style={styles.qtyText}>{cantidad}</Text>
+              <Text style={[styles.qtyText, isDark && styles.textDark]}>{cantidad}</Text>
               <TouchableOpacity 
-                style={styles.qtyBtn}
+                style={[styles.qtyBtn, isDark && styles.qtyBtnDark]}
                 onPress={() => setCantidad(cantidad + 1)}
               >
-                <Ionicons name="add" size={20} color="#1f2937" />
+                <Ionicons name="add" size={20} color={isDark ? "#fff" : "#1f2937"} />
               </TouchableOpacity>
             </View>
             
             <View style={styles.deliveryInfo}>
               <Ionicons name="time-outline" size={18} color="#dc2626" />
-              <Text style={styles.deliveryText}> 20-35 min</Text>
+              <Text style={[styles.deliveryText, isDark && styles.subTextDark]}> 20-35 min</Text>
             </View>
           </View>
 
           {/* Related Section */}
           <View style={styles.relatedSection}>
             <View style={styles.relatedHeader}>
-              <Text style={styles.relatedTitle}>Te puede gustar</Text>
+              <Text style={[styles.relatedTitle, isDark && styles.textDark]}>Te puede gustar</Text>
               <TouchableOpacity>
                 <Text style={styles.seeAll}>Ver más</Text>
               </TouchableOpacity>
@@ -259,18 +262,18 @@ export default function ProductoDetalleScreen() {
                 {productosRelacionados.map((relacionado) => (
                   <TouchableOpacity
                     key={relacionado.id}
-                    style={styles.relatedCard}
+                    style={[styles.relatedCard, isDark && styles.cardDark]}
                     onPress={() => relacionado.id && goToProducto(relacionado.id)}
                   >
                     <Image 
                       source={{ uri: relacionado.imagen || 'https://via.placeholder.com/150' }} 
                       style={styles.relatedImage}
                     />
-                    <View style={styles.relatedBadge}>
+                    <View style={[styles.relatedBadge, isDark && styles.cardDark]}>
                       <Text style={styles.relatedBadgeText}>{relacionado.emoji || '🍔'}</Text>
                     </View>
                     <View style={styles.relatedInfo}>
-                      <Text style={styles.relatedName} numberOfLines={1}>{relacionado.nombre}</Text>
+                      <Text style={[styles.relatedName, isDark && styles.textDark]} numberOfLines={1}>{relacionado.nombre}</Text>
                       <Text style={styles.relatedPrice}>${Number(relacionado.precio).toLocaleString()}</Text>
                     </View>
                   </TouchableOpacity>
@@ -282,10 +285,10 @@ export default function ProductoDetalleScreen() {
       </ScrollView>
 
       {/* Footer */}
-      <View style={styles.footer}>
+      <View style={[styles.footer, isDark && styles.footerDark]}>
         <View style={styles.totalContainer}>
           <Text style={styles.totalLabel}>Total</Text>
-          <Text style={styles.totalValue}>${(Number(producto.precio) * cantidad).toLocaleString()}</Text>
+          <Text style={[styles.totalValue, isDark && styles.textDark]}>${(Number(producto.precio) * cantidad).toLocaleString()}</Text>
         </View>
         <TouchableOpacity style={styles.mainActionBtn} onPress={agregarAlCarrito}>
           <Ionicons name="cart" size={24} color="#fff" />
@@ -370,5 +373,16 @@ const styles = StyleSheet.create({
   mainActionTxt: { color: '#fff', fontSize: 17, fontWeight: '700' },
   loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#fff' },
   errorContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#fff' },
-  errorText: { fontSize: 17, color: '#6b7280', fontWeight: '500' }
+  errorText: { fontSize: 17, color: '#6b7280', fontWeight: '500' },
+
+  // Dark modes
+  containerDark: { backgroundColor: '#020617' },
+  textDark: { color: '#f8fafc' },
+  subTextDark: { color: '#94a3b8' },
+  cardDark: { backgroundColor: '#0f172a', borderColor: '#1e293b' },
+  fieldDark: { backgroundColor: '#1e293b', borderColor: '#334155' },
+  qtyBtnDark: { backgroundColor: '#334155' },
+  dividerDark: { backgroundColor: '#1e293b' },
+  priceTagDark: { backgroundColor: '#1e1b1b' },
+  footerDark: { backgroundColor: '#020617', borderTopColor: '#1e293b' },
 });

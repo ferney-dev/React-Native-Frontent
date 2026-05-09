@@ -13,11 +13,14 @@ import { useRouter } from 'expo-router';
 import { pedidosApi } from '../../services/api';
 import { PedidoStats } from '../../types';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useTheme } from '../../context/ThemeContext';
 
 const { width } = Dimensions.get('window');
 
 export default function AdminStats() {
   const router = useRouter();
+  const { colorScheme } = useTheme();
+  const isDark = colorScheme === 'dark';
   const [stats, setStats] = useState<PedidoStats | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -49,16 +52,16 @@ export default function AdminStats() {
 
   if (loading) {
     return (
-      <View style={styles.loadingContainer}>
+      <View style={[styles.loadingContainer, isDark && styles.containerDark]}>
         <ActivityIndicator size="large" color="#0891b2" />
-        <Text style={styles.loadingText}>Calculando estadísticas...</Text>
+        <Text style={[styles.loadingText, isDark && styles.subTextDark]}>Calculando estadísticas...</Text>
       </View>
     );
   }
 
   return (
-    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-      <LinearGradient colors={['#0891b2', '#0e7490']} style={styles.header}>
+    <ScrollView style={[styles.container, isDark && styles.containerDark]} showsVerticalScrollIndicator={false}>
+      <LinearGradient colors={isDark ? ['#0f172a', '#1e293b'] : ['#0891b2', '#0e7490']} style={styles.header}>
         <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
           <Ionicons name="arrow-back" size={24} color="#fff" />
         </TouchableOpacity>
@@ -74,36 +77,36 @@ export default function AdminStats() {
       <View style={styles.content}>
         {/* CARDS PRINCIPALES */}
         <View style={styles.mainCardsRow}>
-          <View style={[styles.mainCard, { backgroundColor: '#fff' }]}>
-            <View style={[styles.iconBox, { backgroundColor: '#e0f2fe' }]}>
+          <View style={[styles.mainCard, isDark ? styles.cardDark : { backgroundColor: '#fff' }]}>
+            <View style={[styles.iconBox, { backgroundColor: isDark ? '#0284c730' : '#e0f2fe' }]}>
               <Ionicons name="cash" size={24} color="#0284c7" />
             </View>
-            <Text style={styles.cardLabel}>Ventas Totales</Text>
-            <Text style={styles.cardValue}>{formatPrice(stats?.total_ventas || 0)}</Text>
+            <Text style={[styles.cardLabel, isDark && styles.subTextDark]}>Ventas Totales</Text>
+            <Text style={[styles.cardValue, isDark && styles.textDark]}>{formatPrice(stats?.total_ventas || 0)}</Text>
           </View>
 
-          <View style={[styles.mainCard, { backgroundColor: '#fff' }]}>
-            <View style={[styles.iconBox, { backgroundColor: '#f0fdf4' }]}>
+          <View style={[styles.mainCard, isDark ? styles.cardDark : { backgroundColor: '#fff' }]}>
+            <View style={[styles.iconBox, { backgroundColor: isDark ? '#16a34a30' : '#f0fdf4' }]}>
               <Ionicons name="cart" size={24} color="#16a34a" />
             </View>
-            <Text style={styles.cardLabel}>Pedidos</Text>
-            <Text style={styles.cardValue}>{stats?.total_pedidos || 0}</Text>
+            <Text style={[styles.cardLabel, isDark && styles.subTextDark]}>Pedidos</Text>
+            <Text style={[styles.cardValue, isDark && styles.textDark]}>{stats?.total_pedidos || 0}</Text>
           </View>
         </View>
 
-        <View style={styles.singleCard}>
-           <View style={[styles.iconBox, { backgroundColor: '#faf5ff' }]}>
+        <View style={[styles.singleCard, isDark && styles.cardDark]}>
+           <View style={[styles.iconBox, { backgroundColor: isDark ? '#9333ea30' : '#faf5ff' }]}>
               <Ionicons name="analytics" size={24} color="#9333ea" />
             </View>
             <View style={{ flex: 1, marginLeft: 15 }}>
-              <Text style={styles.cardLabel}>Ticket Promedio</Text>
-              <Text style={styles.cardValue}>{formatPrice(stats?.promedio_venta || 0)}</Text>
+              <Text style={[styles.cardLabel, isDark && styles.subTextDark]}>Ticket Promedio</Text>
+              <Text style={[styles.cardValue, isDark && styles.textDark]}>{formatPrice(stats?.promedio_venta || 0)}</Text>
             </View>
         </View>
 
         {/* ESTADO DE PEDIDOS */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Estado de los Pedidos</Text>
+        <View style={[styles.section, isDark && styles.cardDark]}>
+          <Text style={[styles.sectionTitle, isDark && styles.textDark]}>Estado de los Pedidos</Text>
           
           <View style={styles.statusList}>
             <StatusRow 
@@ -111,31 +114,35 @@ export default function AdminStats() {
               count={stats?.pendientes || 0} 
               total={stats?.total_pedidos || 1} 
               color="#f59e0b" 
+              isDark={isDark}
             />
             <StatusRow 
               label="En Preparación" 
               count={stats?.preparando || 0} 
               total={stats?.total_pedidos || 1} 
               color="#3b82f6" 
+              isDark={isDark}
             />
             <StatusRow 
               label="En Camino" 
               count={stats?.en_camino || 0} 
               total={stats?.total_pedidos || 1} 
               color="#8b5cf6" 
+              isDark={isDark}
             />
             <StatusRow 
               label="Entregados" 
               count={stats?.entregados || 0} 
               total={stats?.total_pedidos || 1} 
               color="#10b981" 
+              isDark={isDark}
             />
           </View>
         </View>
 
-        <View style={styles.infoBox}>
-          <Ionicons name="information-circle" size={20} color="#0891b2" />
-          <Text style={styles.infoText}>
+        <View style={[styles.infoBox, isDark && styles.infoBoxDark]}>
+          <Ionicons name="information-circle" size={20} color={isDark ? "#22d3ee" : "#0891b2"} />
+          <Text style={[styles.infoText, isDark && { color: '#cffafe' }]}>
             Los datos se actualizan en tiempo real basándose en todos los pedidos registrados en la base de datos.
           </Text>
         </View>
@@ -145,15 +152,15 @@ export default function AdminStats() {
   );
 }
 
-function StatusRow({ label, count, total, color }: { label: string, count: number, total: number, color: string }) {
+function StatusRow({ label, count, total, color, isDark }: { label: string, count: number, total: number, color: string, isDark: boolean }) {
   const percentage = (count / total) * 100;
   return (
     <View style={styles.statusRow}>
       <View style={styles.statusHeader}>
-        <Text style={styles.statusLabel}>{label}</Text>
+        <Text style={[styles.statusLabel, isDark && { color: '#94a3b8' }]}>{label}</Text>
         <Text style={[styles.statusCount, { color }]}>{count}</Text>
       </View>
-      <View style={styles.progressBarBg}>
+      <View style={[styles.progressBarBg, isDark && { backgroundColor: '#1e293b' }]}>
         <View style={[styles.progressBarFill, { width: `${percentage}%`, backgroundColor: color }]} />
       </View>
     </View>
@@ -198,5 +205,12 @@ const styles = StyleSheet.create({
   progressBarBg: { height: 8, backgroundColor: '#f1f5f9', borderRadius: 4, overflow: 'hidden' },
   progressBarFill: { height: '100%', borderRadius: 4 },
   infoBox: { flexDirection: 'row', backgroundColor: '#e0f2fe', padding: 15, borderRadius: 15, gap: 10, alignItems: 'center' },
-  infoText: { flex: 1, fontSize: 12, color: '#0369a1', lineHeight: 18 }
+  infoText: { flex: 1, fontSize: 12, color: '#0369a1', lineHeight: 18 },
+
+  // Dark modes
+  containerDark: { backgroundColor: '#020617' },
+  textDark: { color: '#f8fafc' },
+  subTextDark: { color: '#94a3b8' },
+  cardDark: { backgroundColor: '#0f172a', borderColor: '#1e293b', borderWidth: 1 },
+  infoBoxDark: { backgroundColor: '#083344', borderColor: '#155e75' },
 });

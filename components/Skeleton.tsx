@@ -1,15 +1,31 @@
 import React, { useEffect, useRef } from 'react';
-import { View, Animated, StyleSheet, ViewStyle } from 'react-native';
+import {
+  View,
+  Animated,
+  StyleSheet,
+  ViewStyle,
+  useColorScheme,
+} from 'react-native';
+
 import { LinearGradient } from 'expo-linear-gradient';
 
 interface SkeletonProps {
   width: number | string;
   height: number | string;
   borderRadius?: number;
-  style?: ViewStyle;
+  style?: ViewStyle | ViewStyle[];
 }
 
-export const Skeleton = ({ width, height, borderRadius = 8, style }: SkeletonProps) => {
+export const Skeleton = ({
+  width,
+  height,
+  borderRadius = 8,
+  style,
+}: SkeletonProps) => {
+
+  const colorScheme = useColorScheme();
+  const isDark = colorScheme === 'dark';
+
   const animatedValue = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
@@ -20,6 +36,7 @@ export const Skeleton = ({ width, height, borderRadius = 8, style }: SkeletonPro
           duration: 1000,
           useNativeDriver: true,
         }),
+
         Animated.timing(animatedValue, {
           toValue: 0,
           duration: 1000,
@@ -27,23 +44,44 @@ export const Skeleton = ({ width, height, borderRadius = 8, style }: SkeletonPro
         }),
       ])
     );
+
     animation.start();
+
     return () => animation.stop();
-  }, [animatedValue]);
+  }, []);
 
   const opacity = animatedValue.interpolate({
     inputRange: [0, 1],
     outputRange: [0.3, 0.7],
   });
 
+  const baseColor = isDark ? '#1e293b' : '#e5e7eb';
+  const highlightColor = isDark ? '#334155' : '#f3f4f6';
+
   return (
-    <View style={[{ width, height, borderRadius, backgroundColor: '#e1e4e8', overflow: 'hidden' }, style]}>
-      <Animated.View style={{ flex: 1, opacity }}>
+    <View
+      style={[
+        {
+          width,
+          height,
+          borderRadius,
+          backgroundColor: baseColor,
+          overflow: 'hidden',
+        },
+        style,
+      ]}
+    >
+      <Animated.View
+        style={{
+          flex: 1,
+          opacity,
+        }}
+      >
         <LinearGradient
-          colors={['#e1e4e8', '#f2f4f7', '#e1e4e8']}
+          colors={[baseColor, highlightColor, baseColor]}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 0 }}
-          style={StyleSheet.absoluteFill}
+          style={StyleSheet.absoluteFillObject}
         />
       </Animated.View>
     </View>

@@ -19,12 +19,15 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { authApi } from '../services/api';
 import { showAlert } from '../services/alerts';
+import { useTheme } from '../context/ThemeContext';
 
 
 const { width, height } = Dimensions.get('window');
 
 export default function LoginScreen() {
   const router = useRouter();
+  const { colorScheme } = useTheme();
+  const isDark = colorScheme === 'dark';
   const [correo, setCorreo] = useState('');
 
   const [password, setPassword] = useState('');
@@ -93,10 +96,10 @@ export default function LoginScreen() {
 
   return (
     <KeyboardAvoidingView
-      style={styles.container}
+      style={[styles.container, isDark && styles.containerDark]}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
-      <StatusBar barStyle="dark-content" backgroundColor="#fff" />
+      <StatusBar barStyle={isDark ? "light-content" : "dark-content"} backgroundColor={isDark ? "#020617" : "#fff"} />
 
       {/* ── Decoraciones de fondo (sutiles, sobre blanco) ───────────── */}
       <View style={styles.blob1} />
@@ -138,28 +141,32 @@ export default function LoginScreen() {
             <Text style={styles.logoEmoji}>🍔</Text>
           </View>
 
-          <Text style={styles.appName}>
+          <Text style={[styles.appName, isDark && styles.textDark]}>
             Food<Text style={styles.appRed}>Express</Text>
           </Text>
-          <Text style={styles.appSub}>Tu comida favorita al instante</Text>
+          <Text style={[styles.appSub, isDark && styles.subTextDark]}>Tu comida favorita al instante</Text>
 
           {/* Chips */}
           <View style={styles.chips}>
             {[['🔥', 'Rápido'], ['⭐', '4.9'], ['📍', 'Cerca']].map(([icon, label]) => (
-              <View key={label} style={styles.chip}>
-                <Text style={styles.chipTxt}>{icon} {label}</Text>
+              <View key={label} style={[styles.chip, isDark && styles.chipDark]}>
+                <Text style={[styles.chipTxt, isDark && styles.chipTxtDark]}>{icon} {label}</Text>
               </View>
             ))}
           </View>
         </Animated.View>
 
         {/* ── CARD ───────────────────────────────────────────────────── */}
-        <Animated.View style={[styles.card, { opacity: fadeIn, transform: [{ translateY: slideUp }] }]}>
-          <Text style={styles.cardTitle}>Iniciar Sesión</Text>
-          <Text style={styles.cardSub}>Bienvenido de vuelta 👋</Text>
+        <Animated.View style={[styles.card, isDark && styles.cardDark, { opacity: fadeIn, transform: [{ translateY: slideUp }] }]}>
+          <Text style={[styles.cardTitle, isDark && styles.textDark]}>Iniciar Sesión</Text>
+          <Text style={[styles.cardSub, isDark && styles.subTextDark]}>Bienvenido de vuelta 👋</Text>
 
           {/* Correo */}
-          <View style={[styles.field, focusedInput === 'email' && styles.fieldFocused]}>
+          <View style={[
+            styles.field, 
+            isDark && styles.fieldDark,
+            focusedInput === 'email' && (isDark ? styles.fieldFocusedDark : styles.fieldFocused)
+          ]}>
             <Ionicons
               name="mail-outline"
               size={18}
@@ -167,9 +174,9 @@ export default function LoginScreen() {
               style={styles.fieldIcon}
             />
             <TextInput
-              style={styles.input}
+              style={[styles.input, isDark && styles.textDark]}
               placeholder="Correo electrónico"
-              placeholderTextColor="#c4c9d4"
+              placeholderTextColor={isDark ? "#4b5563" : "#c4c9d4"}
               value={correo}
               onChangeText={setCorreo}
               keyboardType="email-address"
@@ -181,7 +188,11 @@ export default function LoginScreen() {
 
 
           {/* Contraseña */}
-          <View style={[styles.field, focusedInput === 'pass' && styles.fieldFocused]}>
+          <View style={[
+            styles.field, 
+            isDark && styles.fieldDark,
+            focusedInput === 'pass' && (isDark ? styles.fieldFocusedDark : styles.fieldFocused)
+          ]}>
             <Ionicons
               name="lock-closed-outline"
               size={18}
@@ -189,9 +200,9 @@ export default function LoginScreen() {
               style={styles.fieldIcon}
             />
             <TextInput
-              style={styles.input}
+              style={[styles.input, isDark && styles.textDark]}
               placeholder="Contraseña"
-              placeholderTextColor="#c4c9d4"
+              placeholderTextColor={isDark ? "#4b5563" : "#c4c9d4"}
               value={password}
               onChangeText={setPassword}
               secureTextEntry={!showPassword}
@@ -394,4 +405,14 @@ const styles = StyleSheet.create({
 
   // ── Footer ────────────────────────────────────────────────────────────────
   footer: { textAlign: 'center', color: '#d1d5db', fontSize: 10, marginTop: 24 },
+
+  // Dark styles
+  containerDark: { backgroundColor: '#020617' },
+  textDark: { color: '#f8fafc' },
+  subTextDark: { color: '#94a3b8' },
+  cardDark: { backgroundColor: '#0f172a', borderColor: '#1e293b' },
+  fieldDark: { backgroundColor: '#1e293b', borderColor: '#334155' },
+  fieldFocusedDark: { borderColor: RED, backgroundColor: '#1e1b1b' },
+  chipDark: { backgroundColor: 'rgba(220,38,38,0.15)', borderColor: 'rgba(220,38,38,0.3)' },
+  chipTxtDark: { color: '#ef4444' },
 });

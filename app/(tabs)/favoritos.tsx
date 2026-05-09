@@ -12,9 +12,12 @@ import Swal from 'sweetalert2';
 import { favoritosApi } from '../../services/api';
 import { Favorito, Usuario } from '../../types';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useTheme } from '../../context/ThemeContext';
 
 
 export default function Favoritos() {
+  const { colorScheme } = useTheme();
+  const isDark = colorScheme === 'dark';
   const [favoritos, setFavoritos] = useState<Favorito[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -91,23 +94,25 @@ export default function Favoritos() {
 
   if (loading) {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#fff5f5' }}>
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: isDark ? '#020617' : '#fff5f5' }}>
         <ActivityIndicator size="large" color="#dc2626" />
-        <Text style={{ marginTop: 10, color: '#7f1d1d' }}>Cargando favoritos...</Text>
+        <Text style={{ marginTop: 10, color: isDark ? '#f8fafc' : '#7f1d1d' }}>Cargando favoritos...</Text>
       </View>
     );
   }
   return (
-    <View style={{ flex: 1, backgroundColor: '#fff5f5' }}>
+    <View style={{ flex: 1, backgroundColor: isDark ? '#020617' : '#fff5f5' }}>
       {/* HEADER */}
       <View
         style={{
-          backgroundColor: '#b91c1c',
+          backgroundColor: isDark ? '#0f172a' : '#b91c1c',
           paddingTop: 60,
           paddingBottom: 20,
           paddingHorizontal: 20,
           borderBottomLeftRadius: 30,
           borderBottomRightRadius: 30,
+          borderWidth: isDark ? 1 : 0,
+          borderColor: isDark ? '#1e293b' : 'transparent',
         }}
       >
         <Text
@@ -138,11 +143,11 @@ export default function Favoritos() {
       >
         {favoritos.length === 0 ? (
           <View style={{ alignItems: 'center', marginTop: 50 }}>
-            <Ionicons name="heart-outline" size={80} color="#d1d5db" />
-            <Text style={{ fontSize: 18, color: '#6b7280', marginTop: 20, textAlign: 'center' }}>
+            <Ionicons name="heart-outline" size={80} color={isDark ? "#334155" : "#d1d5db"} />
+            <Text style={{ fontSize: 18, color: isDark ? '#94a3b8' : '#6b7280', marginTop: 20, textAlign: 'center' }}>
               No tienes productos favoritos aún
             </Text>
-            <Text style={{ fontSize: 14, color: '#9ca3af', marginTop: 10, textAlign: 'center' }}>
+            <Text style={{ fontSize: 14, color: isDark ? '#4b5563' : '#9ca3af', marginTop: 10, textAlign: 'center' }}>
               Explora nuestros productos y añade tus favoritos
             </Text>
           </View>
@@ -151,7 +156,7 @@ export default function Favoritos() {
             <View
               key={favorito.id?.toString() || `${favorito.id_producto}`}
               style={{
-                backgroundColor: '#fff',
+                backgroundColor: isDark ? '#0f172a' : '#fff',
                 borderRadius: 25,
                 padding: 18,
                 marginBottom: 18,
@@ -162,6 +167,8 @@ export default function Favoritos() {
                 shadowOpacity: 0.08,
                 shadowRadius: 8,
                 elevation: 4,
+                borderWidth: isDark ? 1 : 0,
+                borderColor: isDark ? '#1e293b' : 'transparent',
               }}
             >
               {/* EMOJI */}
@@ -170,7 +177,7 @@ export default function Favoritos() {
                   width: 85,
                   height: 85,
                   borderRadius: 22,
-                  backgroundColor: '#fee2e2',
+                  backgroundColor: isDark ? '#dc262620' : '#fee2e2',
                   justifyContent: 'center',
                   alignItems: 'center',
                 }}
@@ -184,7 +191,7 @@ export default function Favoritos() {
                   style={{
                     fontSize: 18,
                     fontWeight: 'bold',
-                    color: '#111827',
+                    color: isDark ? '#f8fafc' : '#111827',
                   }}
                 >
                   {favorito.producto_nombre}
@@ -206,7 +213,7 @@ export default function Favoritos() {
               <View style={{ alignItems: 'center' }}>
                 <TouchableOpacity
                   style={{
-                    backgroundColor: '#fee2e2',
+                    backgroundColor: isDark ? '#dc262620' : '#fee2e2',
                     width: 50,
                     height: 50,
                     borderRadius: 16,
@@ -220,7 +227,7 @@ export default function Favoritos() {
                 
                 <TouchableOpacity
                   style={{
-                    backgroundColor: '#fee2e2',
+                    backgroundColor: isDark ? '#dc262620' : '#fee2e2',
                     width: 50,
                     height: 50,
                     borderRadius: 16,

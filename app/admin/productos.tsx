@@ -17,9 +17,12 @@ import { productosApi, categoriasApi } from '../../services/api';
 import { Producto, Categoria } from '../../types';
 import { showAlert, showConfirm } from '../../services/alerts';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useTheme } from '../../context/ThemeContext';
 
 export default function AdminProductos() {
   const router = useRouter();
+  const { colorScheme } = useTheme();
+  const isDark = colorScheme === 'dark';
   const [productos, setProductos] = useState<Producto[]>([]);
   const [categorias, setCategorias] = useState<Categoria[]>([]);
   const [loading, setLoading] = useState(true);
@@ -135,15 +138,14 @@ export default function AdminProductos() {
 
   const renderItem = ({ item }: { item: Producto }) => {
     const isExpanded = expandedId === item.id;
-
     return (
-      <View style={[styles.card, isExpanded && styles.cardExpanded]}>
+      <View style={[styles.card, isDark && styles.cardDark, isExpanded && (isDark ? styles.cardExpandedDark : styles.cardExpanded)]}>
         <TouchableOpacity 
           style={styles.cardHeaderRow} 
           onPress={() => item.id && toggleExpand(item.id)}
           activeOpacity={0.7}
         >
-          <View style={styles.cardImageContainer}>
+          <View style={[styles.cardImageContainer, isDark && styles.cardImageContainerDark]}>
             {item.imagen ? (
               <Image source={{ uri: item.imagen }} style={styles.cardImage} />
             ) : (
@@ -151,22 +153,22 @@ export default function AdminProductos() {
             )}
           </View>
           <View style={styles.info}>
-            <Text style={styles.prodName}>{item.nombre}</Text>
+            <Text style={[styles.prodName, isDark && styles.textDark]}>{item.nombre}</Text>
             <Text style={styles.prodCat}>{item.categoria_nombre || 'Sin categoría'}</Text>
-            <Text style={styles.prodPrice}>${Number(item.precio).toLocaleString()}</Text>
+            <Text style={[styles.prodPrice, isDark && styles.textDark]}>${Number(item.precio).toLocaleString()}</Text>
           </View>
           <Ionicons 
             name={isExpanded ? "chevron-up" : "chevron-down"} 
             size={20} 
-            color="#9ca3af" 
+            color={isDark ? "#4b5563" : "#9ca3af"} 
           />
         </TouchableOpacity>
-
+ 
         {isExpanded && (
-          <View style={styles.expandedContent}>
-            <View style={styles.divider} />
+          <View style={[styles.expandedContent, isDark && styles.expandedContentDark]}>
+            <View style={[styles.divider, isDark && styles.dividerDark]} />
             <Text style={styles.descriptionLabel}>Descripción:</Text>
-            <Text style={styles.descriptionText}>{item.descripcion || 'Sin descripción'}</Text>
+            <Text style={[styles.descriptionText, isDark && styles.subTextDark]}>{item.descripcion || 'Sin descripción'}</Text>
             
             <View style={styles.detailsGrid}>
               <View style={styles.detailItem}>
@@ -177,10 +179,10 @@ export default function AdminProductos() {
               </View>
               <View style={styles.detailItem}>
                 <Text style={styles.detailLabel}>Popular</Text>
-                <Text style={styles.detailValue}>{item.popular ? 'Sí ⭐' : 'No'}</Text>
+                <Text style={[styles.detailValue, isDark && styles.subTextDark]}>{item.popular ? 'Sí ⭐' : 'No'}</Text>
               </View>
             </View>
-
+ 
             <View style={styles.actions}>
               <TouchableOpacity 
                 style={[styles.actionBtn, styles.editBtn]} 
@@ -206,8 +208,8 @@ export default function AdminProductos() {
 
 
   return (
-    <View style={styles.container}>
-      <LinearGradient colors={['#b91c1c', '#dc2626']} style={styles.header}>
+    <View style={[styles.container, isDark && styles.containerDark]}>
+      <LinearGradient colors={isDark ? ['#0f172a', '#1e293b'] : ['#b91c1c', '#dc2626']} style={styles.header}>
         <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
           <Ionicons name="arrow-back" size={24} color="#fff" />
         </TouchableOpacity>
@@ -216,7 +218,7 @@ export default function AdminProductos() {
           <Text style={styles.subtitle}>{productos.length} items en el menú</Text>
         </View>
         <TouchableOpacity 
-          style={styles.addBtn} 
+          style={[styles.addBtn, isDark && styles.addBtnDark]} 
           onPress={() => { resetForm(); setModalVisible(true); }}
         >
           <Ionicons name="add" size={28} color="#dc2626" />
@@ -248,26 +250,27 @@ export default function AdminProductos() {
       {/* Modal CRUD */}
       <Modal visible={modalVisible} animationType="slide" transparent>
         <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
+          <View style={[styles.modalContent, isDark && styles.cardDark]}>
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>
+              <Text style={[styles.modalTitle, isDark && styles.textDark]}>
                 {editingProducto ? 'Editar Producto' : 'Nuevo Producto'}
               </Text>
               <TouchableOpacity onPress={() => setModalVisible(false)}>
-                <Ionicons name="close" size={24} color="#1f2937" />
+                <Ionicons name="close" size={24} color={isDark ? "#f8fafc" : "#1f2937"} />
               </TouchableOpacity>
             </View>
 
             <ScrollView showsVerticalScrollIndicator={false}>
-              <Text style={styles.label}>Nombre</Text>
+              <Text style={[styles.label, isDark && styles.textDark]}>Nombre</Text>
               <TextInput
-                style={styles.input}
+                style={[styles.input, isDark && styles.fieldDark, isDark && styles.textDark]}
                 value={formData.nombre}
                 onChangeText={(t) => setFormData({ ...formData, nombre: t })}
                 placeholder="Nombre del producto"
+                placeholderTextColor={isDark ? "#4b5563" : "#9ca3af"}
               />
 
-              <Text style={styles.label}>Categoría</Text>
+              <Text style={[styles.label, isDark && styles.textDark]}>Categoría</Text>
               <View style={styles.pickerContainer}>
                 <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                   {categorias.map((cat) => (
@@ -275,12 +278,14 @@ export default function AdminProductos() {
                       key={cat.id}
                       style={[
                         styles.catChip,
+                        isDark && styles.fieldDark,
                         formData.id_categoria === cat.id?.toString() && styles.catChipActive
                       ]}
                       onPress={() => setFormData({ ...formData, id_categoria: cat.id?.toString() || '' })}
                     >
                       <Text style={[
                         styles.catChipText,
+                        isDark && styles.subTextDark,
                         formData.id_categoria === cat.id?.toString() && styles.catChipTextActive
                       ]}>
                         {cat.nombre}
@@ -290,42 +295,46 @@ export default function AdminProductos() {
                 </ScrollView>
               </View>
 
-              <Text style={styles.label}>Precio</Text>
+              <Text style={[styles.label, isDark && styles.textDark]}>Precio</Text>
               <TextInput
-                style={styles.input}
+                style={[styles.input, isDark && styles.fieldDark, isDark && styles.textDark]}
                 value={formData.precio}
                 onChangeText={(t) => setFormData({ ...formData, precio: t })}
                 placeholder="0.00"
+                placeholderTextColor={isDark ? "#4b5563" : "#9ca3af"}
                 keyboardType="numeric"
               />
 
-              <Text style={styles.label}>Descripción</Text>
+              <Text style={[styles.label, isDark && styles.textDark]}>Descripción</Text>
               <TextInput
-                style={[styles.input, { height: 80, textAlignVertical: 'top' }]}
+                style={[styles.input, isDark && styles.fieldDark, isDark && styles.textDark, { height: 80, textAlignVertical: 'top' }]}
                 value={formData.descripcion}
                 onChangeText={(t) => setFormData({ ...formData, descripcion: t })}
                 placeholder="Breve descripción..."
+                placeholderTextColor={isDark ? "#4b5563" : "#9ca3af"}
                 multiline
               />
 
-              <Text style={styles.label}>URL Imagen (Opcional)</Text>
+              <Text style={[styles.label, isDark && styles.textDark]}>URL Imagen (Opcional)</Text>
               <TextInput
-                style={styles.input}
+                style={[styles.input, isDark && styles.fieldDark, isDark && styles.textDark]}
                 value={formData.imagen}
                 onChangeText={(t) => setFormData({ ...formData, imagen: t })}
                 placeholder="https://..."
+                placeholderTextColor={isDark ? "#4b5563" : "#9ca3af"}
               />
 
-              <Text style={styles.label}>Emoji representativo</Text>
+              <Text style={[styles.label, isDark && styles.textDark]}>Emoji representativo</Text>
               <TextInput
-                style={styles.input}
+                style={[styles.input, isDark && styles.fieldDark, isDark && styles.textDark]}
                 value={formData.emoji}
                 onChangeText={(t) => setFormData({ ...formData, emoji: t })}
                 placeholder="🍔"
+                placeholderTextColor={isDark ? "#4b5563" : "#9ca3af"}
               />
 
               <TouchableOpacity 
-                style={styles.popularRow}
+                style={[styles.popularRow, isDark && styles.fieldDark]}
                 onPress={() => setFormData({ ...formData, popular: formData.popular ? 0 : 1 })}
               >
                 <Ionicons 
@@ -333,7 +342,7 @@ export default function AdminProductos() {
                   size={24} 
                   color={formData.popular ? "#eab308" : "#9ca3af"} 
                 />
-                <Text style={styles.popularLabel}>Destacar en populares</Text>
+                <Text style={[styles.popularLabel, isDark && styles.textDark]}>Destacar en populares</Text>
               </TouchableOpacity>
 
               <TouchableOpacity style={styles.saveBtn} onPress={handleSave}>
@@ -461,6 +470,18 @@ const styles = StyleSheet.create({
   },
   emptyBtnText: {
     color: '#dc2626', fontWeight: 'bold'
-  }
+  },
+
+  // Dark modes
+  containerDark: { backgroundColor: '#020617' },
+  textDark: { color: '#f8fafc' },
+  subTextDark: { color: '#94a3b8' },
+  cardDark: { backgroundColor: '#0f172a', borderColor: '#1e293b' },
+  cardExpandedDark: { borderColor: '#dc2626', borderWidth: 1.5 },
+  fieldDark: { backgroundColor: '#1e293b', borderColor: '#334155' },
+  addBtnDark: { backgroundColor: '#0f172a', borderColor: '#1e293b' },
+  cardImageContainerDark: { backgroundColor: '#1e1b1b' },
+  expandedContentDark: { backgroundColor: '#0f172a' },
+  dividerDark: { backgroundColor: '#1e293b' },
 });
 

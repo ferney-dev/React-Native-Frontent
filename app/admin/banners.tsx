@@ -17,9 +17,12 @@ import { bannersApi } from '../../services/api';
 import { Banner } from '../../types';
 import { showAlert, showConfirm } from '../../services/alerts';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useTheme } from '../../context/ThemeContext';
 
 export default function AdminBanners() {
   const router = useRouter();
+  const { colorScheme } = useTheme();
+  const isDark = colorScheme === 'dark';
   const [banners, setBanners] = useState<Banner[]>([]);
   const [loading, setLoading] = useState(true);
   const [modalVisible, setModalVisible] = useState(false);
@@ -124,7 +127,7 @@ export default function AdminBanners() {
     const isExpanded = expandedId === item.id;
 
     return (
-      <View style={[styles.card, isExpanded && styles.cardExpanded]}>
+      <View style={[styles.card, isDark && styles.cardDark, isExpanded && (isDark ? styles.cardExpandedDark : styles.cardExpanded)]}>
         <TouchableOpacity 
           style={styles.cardHeaderRow} 
           onPress={() => item.id && toggleExpand(item.id)}
@@ -134,7 +137,7 @@ export default function AdminBanners() {
              <Ionicons name="image" size={20} color="#fff" />
           </View>
           <View style={styles.info}>
-            <Text style={styles.bannerTitle}>{item.titulo}</Text>
+            <Text style={[styles.bannerTitle, isDark && styles.textDark]}>{item.titulo}</Text>
             <Text style={[styles.statusBadge, { color: item.activo ? '#10b981' : '#ef4444' }]}>
               {item.activo ? 'Activo' : 'Inactivo'}
             </Text>
@@ -142,13 +145,13 @@ export default function AdminBanners() {
           <Ionicons 
             name={isExpanded ? "chevron-up" : "chevron-down"} 
             size={20} 
-            color="#9ca3af" 
+            color={isDark ? "#4b5563" : "#9ca3af"} 
           />
         </TouchableOpacity>
 
         {isExpanded && (
-          <View style={styles.expandedContent}>
-            <View style={styles.divider} />
+          <View style={[styles.expandedContent, isDark && styles.expandedContentDark]}>
+            <View style={[styles.divider, isDark && styles.dividerDark]} />
             
             {item.imagen && (
               <Image 
@@ -159,14 +162,14 @@ export default function AdminBanners() {
             )}
 
             <Text style={styles.detailLabel}>Descripción:</Text>
-            <Text style={styles.detailText}>{item.descripcion || 'Sin descripción'}</Text>
+            <Text style={[styles.detailText, isDark && styles.subTextDark]}>{item.descripcion || 'Sin descripción'}</Text>
             
             <View style={styles.detailsGrid}>
               <View style={styles.detailItem}>
                 <Text style={styles.detailLabel}>Color de Fondo</Text>
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
                   <View style={[styles.colorCircle, { backgroundColor: item.color }]} />
-                  <Text style={styles.detailValue}>{item.color}</Text>
+                  <Text style={[styles.detailValue, isDark && styles.subTextDark]}>{item.color}</Text>
                 </View>
               </View>
             </View>
@@ -195,8 +198,8 @@ export default function AdminBanners() {
   };
 
   return (
-    <View style={styles.container}>
-      <LinearGradient colors={['#ea580c', '#f97316']} style={styles.header}>
+    <View style={[styles.container, isDark && styles.containerDark]}>
+      <LinearGradient colors={isDark ? ['#0f172a', '#1e293b'] : ['#ea580c', '#f97316']} style={styles.header}>
         <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
           <Ionicons name="arrow-back" size={24} color="#fff" />
         </TouchableOpacity>
@@ -205,7 +208,7 @@ export default function AdminBanners() {
           <Text style={styles.subtitle}>{banners.length} promociones actuales</Text>
         </View>
         <TouchableOpacity 
-          style={styles.addBtn} 
+          style={[styles.addBtn, isDark && styles.addBtnDark]} 
           onPress={() => { resetForm(); setModalVisible(true); }}
         >
           <Ionicons name="add" size={28} color="#ea580c" />
@@ -231,55 +234,59 @@ export default function AdminBanners() {
 
       <Modal visible={modalVisible} animationType="slide" transparent>
         <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
+          <View style={[styles.modalContent, isDark && styles.cardDark]}>
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>
+              <Text style={[styles.modalTitle, isDark && styles.textDark]}>
                 {editingBanner ? 'Editar Banner' : 'Nuevo Banner'}
               </Text>
               <TouchableOpacity onPress={() => setModalVisible(false)}>
-                <Ionicons name="close" size={24} color="#1f2937" />
+                <Ionicons name="close" size={24} color={isDark ? "#f8fafc" : "#1f2937"} />
               </TouchableOpacity>
             </View>
 
             <ScrollView showsVerticalScrollIndicator={false}>
-              <Text style={styles.label}>Título</Text>
+              <Text style={[styles.label, isDark && styles.textDark]}>Título</Text>
               <TextInput
-                style={styles.input}
+                style={[styles.input, isDark && styles.fieldDark, isDark && styles.textDark]}
                 value={formData.titulo}
                 onChangeText={(t) => setFormData({ ...formData, titulo: t })}
                 placeholder="Ej: 50% OFF en Pizzas"
+                placeholderTextColor={isDark ? "#4b5563" : "#9ca3af"}
               />
 
-              <Text style={styles.label}>Descripción</Text>
+              <Text style={[styles.label, isDark && styles.textDark]}>Descripción</Text>
               <TextInput
-                style={[styles.input, { height: 80, textAlignVertical: 'top' }]}
+                style={[styles.input, isDark && styles.fieldDark, isDark && styles.textDark, { height: 80, textAlignVertical: 'top' }]}
                 value={formData.descripcion}
                 onChangeText={(t) => setFormData({ ...formData, descripcion: t })}
                 placeholder="Breve detalle de la oferta..."
+                placeholderTextColor={isDark ? "#4b5563" : "#9ca3af"}
                 multiline
               />
 
-              <Text style={styles.label}>URL Imagen</Text>
+              <Text style={[styles.label, isDark && styles.textDark]}>URL Imagen</Text>
               <TextInput
-                style={styles.input}
+                style={[styles.input, isDark && styles.fieldDark, isDark && styles.textDark]}
                 value={formData.imagen}
                 onChangeText={(t) => setFormData({ ...formData, imagen: t })}
                 placeholder="https://..."
+                placeholderTextColor={isDark ? "#4b5563" : "#9ca3af"}
               />
 
-              <Text style={styles.label}>Color de Fondo (Hex)</Text>
+              <Text style={[styles.label, isDark && styles.textDark]}>Color de Fondo (Hex)</Text>
               <View style={{ flexDirection: 'row', gap: 10, alignItems: 'center' }}>
                 <TextInput
-                  style={[styles.input, { flex: 1 }]}
+                  style={[styles.input, isDark && styles.fieldDark, isDark && styles.textDark, { flex: 1 }]}
                   value={formData.color}
                   onChangeText={(t) => setFormData({ ...formData, color: t })}
                   placeholder="#dc2626"
+                  placeholderTextColor={isDark ? "#4b5563" : "#9ca3af"}
                 />
                 <View style={[styles.colorPreview, { backgroundColor: formData.color || '#eee' }]} />
               </View>
 
               <TouchableOpacity 
-                style={styles.activeRow}
+                style={[styles.activeRow, isDark && styles.fieldDark]}
                 onPress={() => setFormData({ ...formData, activo: formData.activo ? 0 : 1 })}
               >
                 <Ionicons 
@@ -287,7 +294,7 @@ export default function AdminBanners() {
                   size={24} 
                   color={formData.activo ? "#10b981" : "#9ca3af"} 
                 />
-                <Text style={styles.activeLabel}>Banner Activo</Text>
+                <Text style={[styles.activeLabel, isDark && styles.textDark]}>Banner Activo</Text>
               </TouchableOpacity>
 
               <TouchableOpacity style={styles.saveBtn} onPress={handleSave}>
@@ -360,5 +367,16 @@ const styles = StyleSheet.create({
   saveBtn: { backgroundColor: '#ea580c', padding: 18, borderRadius: 15, alignItems: 'center', marginTop: 30 },
   saveBtnText: { color: '#fff', fontSize: 16, fontWeight: 'bold' },
   emptyContainer: { alignItems: 'center', marginTop: 100 },
-  emptyText: { color: '#9ca3af', marginTop: 15 }
+  emptyText: { color: '#9ca3af', marginTop: 15 },
+
+  // Dark modes
+  containerDark: { backgroundColor: '#020617' },
+  textDark: { color: '#f8fafc' },
+  subTextDark: { color: '#94a3b8' },
+  cardDark: { backgroundColor: '#0f172a', borderColor: '#1e293b' },
+  cardExpandedDark: { borderColor: '#ea580c', borderWidth: 1.5 },
+  fieldDark: { backgroundColor: '#1e293b', borderColor: '#334155' },
+  addBtnDark: { backgroundColor: '#0f172a', borderColor: '#1e293b' },
+  expandedContentDark: { backgroundColor: '#0f172a' },
+  dividerDark: { backgroundColor: '#1e293b' },
 });

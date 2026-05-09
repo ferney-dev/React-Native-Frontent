@@ -1,36 +1,15 @@
-import React, { useState, useEffect } from 'react';
-import { 
-  ScrollView, 
-  Text, 
-  TouchableOpacity, 
-  View, 
-  Image, 
-  Modal,
-  FlatList,
-  Dimensions,
-  TextInput,
-  Alert,
-  ActivityIndicator,
-} from 'react-native';
-
-
-import {
-  Ionicons,
-  MaterialCommunityIcons,
-  FontAwesome5,
-} from '@expo/vector-icons';
+import React, { useState, useEffect, useRef } from 'react';
+import { ScrollView, Text, TouchableOpacity, View, Image, Modal,FlatList,Dimensions,TextInput,Alert,ActivityIndicator,useColorScheme,} from 'react-native';
+import {Ionicons,MaterialCommunityIcons,FontAwesome5,} from '@expo/vector-icons';
 import { categoriasApi, productosApi, bannersApi, favoritosApi, carritoApi } from '../../services/api';
 import { Categoria, Producto, Banner, Usuario } from '../../types';
 import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Haptics from 'expo-haptics';
 import { Skeleton } from '../../components/Skeleton';
-
 import { AnimatedButton } from '../../components/AnimatedButton';
 
 const { width } = Dimensions.get('window');
-
-
 
 export default function HomeScreen() {
   const router = useRouter();
@@ -44,7 +23,29 @@ export default function HomeScreen() {
   const [searchCategoria, setSearchCategoria] = useState('');
   const [paginaProductos, setPaginaProductos] = useState(0);
   const PRODUCTOS_POR_PAGINA = 8;
+  const colorScheme = useColorScheme();
+  const isDark = colorScheme === 'dark';
+  const flatListRef = useRef<FlatList>(null);
+  
+useEffect(() => {
+  if (banners.length === 0) return;
 
+  const interval = setInterval(() => {
+    const nextIndex =
+      activeBannerIndex === banners.length - 1
+        ? 0
+        : activeBannerIndex + 1;
+
+    flatListRef.current?.scrollToIndex({
+      index: nextIndex,
+      animated: true,
+    });
+
+    setActiveBannerIndex(nextIndex);
+  }, 5000);
+
+  return () => clearInterval(interval);
+}, [activeBannerIndex, banners]);
 
 
 
@@ -177,24 +178,14 @@ export default function HomeScreen() {
 
   return (
     <ScrollView
-      style={{
-        flex: 1,
-        backgroundColor: '#fff5f5',
-      }}
+      className="flex-1 bg-[#fff5f5] dark:bg-slate-950"
       contentContainerStyle={{
         paddingBottom: 30,
       }}
     >
       {/* HEADER */}
       <View
-        style={{
-          backgroundColor: '#b91c1c',
-          paddingTop: 60,
-          paddingBottom: 30,
-          paddingHorizontal: 20,
-          borderBottomLeftRadius: 30,
-          borderBottomRightRadius: 30,
-        }}
+        className="bg-[#b91c1c] dark:bg-slate-900 pt-[60px] pb-[30px] px-5 rounded-b-[30px]"
       >
         <View
           style={{
@@ -227,14 +218,7 @@ export default function HomeScreen() {
 
           <AnimatedButton
             haptic={Haptics.ImpactFeedbackStyle.Light}
-            style={{
-              backgroundColor: '#dc2626',
-              width: 55,
-              height: 55,
-              borderRadius: 30,
-              justifyContent: 'center',
-              alignItems: 'center',
-            }}
+            className="bg-[#dc2626] dark:bg-slate-800 w-[55px] h-[55px] rounded-full justify-center items-center"
             onPress={() => router.push('/carrito')}
           >
             <Ionicons name="cart" size={28} color="#fff" />
@@ -246,33 +230,15 @@ export default function HomeScreen() {
         {user?.rol === 2 && (
           <AnimatedButton
             haptic={Haptics.ImpactFeedbackStyle.Medium}
-            style={{
-              marginTop: 25,
-              backgroundColor: 'rgba(255,255,255,0.15)',
-              paddingVertical: 15,
-              paddingHorizontal: 20,
-              borderRadius: 20,
-              flexDirection: 'row',
-              alignItems: 'center',
-              borderWidth: 1,
-              borderColor: 'rgba(255,255,255,0.3)',
-            }}
+            className="mt-6 bg-white/15 dark:bg-white/5 py-[15px] px-5 rounded-[20px] flex-row items-center border border-white/30 dark:border-white/10"
             onPress={() => router.push('/admin')}
           >
-            <View style={{
-              backgroundColor: '#fff',
-              width: 40,
-              height: 40,
-              borderRadius: 12,
-              justifyContent: 'center',
-              alignItems: 'center',
-              marginRight: 15
-            }}>
+            <View className="bg-white dark:bg-slate-800 w-10 h-10 rounded-xl justify-center items-center mr-[15px]">
               <Ionicons name="shield-checkmark" size={24} color="#dc2626" />
             </View>
             <View style={{ flex: 1 }}>
-              <Text style={{ color: '#fff', fontSize: 16, fontWeight: 'bold' }}>Panel de Administración</Text>
-              <Text style={{ color: '#fecaca', fontSize: 12 }}>Gestionar productos, pedidos y más</Text>
+              <Text className="text-white text-base font-bold">Panel de Administración</Text>
+              <Text className="text-red-100 dark:text-gray-400 text-[12px]">Gestionar productos, pedidos y más</Text>
             </View>
             <Ionicons name="chevron-forward" size={20} color="#fff" opacity={0.7} />
           </AnimatedButton>
@@ -284,168 +250,218 @@ export default function HomeScreen() {
 
 
 
-      {/* CARROUSEL DE BANNERS DINÁMICO */}
-      <View style={{ marginTop: 20 }}>
-        {loading ? (
-          <View style={{ marginHorizontal: 20 }}>
-            <Skeleton width={width - 40} height={180} borderRadius={30} />
-          </View>
-        ) : banners.length > 0 ? (
-          <View>
-            <FlatList
-              data={banners}
-              horizontal
-              pagingEnabled
-              showsHorizontalScrollIndicator={false}
-              onMomentumScrollEnd={(e) => {
-                const index = Math.round(e.nativeEvent.contentOffset.x / width);
-                setActiveBannerIndex(index);
+   
+{/* CARROUSEL DE BANNERS */}
+<View style={{ marginTop: 20 }}>
+  {loading ? (
+    <View style={{ paddingHorizontal: 16 }}>
+      <Skeleton
+        width={width - 32}
+        height={190}
+        borderRadius={28}
+      />
+    </View>
+  ) : banners.length > 0 ? (
+    <View>
+      <FlatList
+        ref={flatListRef}
+        data={banners}
+        horizontal
+        pagingEnabled
+        snapToInterval={width}
+        decelerationRate="fast"
+        snapToAlignment="start"
+        showsHorizontalScrollIndicator={false}
+        keyExtractor={(item) => item.id?.toString() || item.titulo}
+        getItemLayout={(_, index) => ({
+          length: width,
+          offset: width * index,
+          index,
+        })}
+        onMomentumScrollEnd={(e) => {
+          const index = Math.round(
+            e.nativeEvent.contentOffset.x / width
+          );
+
+          setActiveBannerIndex(index);
+        }}
+        renderItem={({ item }) => (
+          <View
+            style={{
+              width: width,
+              paddingHorizontal: 16,
+            }}
+          >
+            <View
+              style={{
+                width: '100%',
+                minHeight: 190,
+
+                backgroundColor: item.color || '#ef4444',
+
+                borderRadius: 28,
+
+                paddingHorizontal: 20,
+                paddingVertical: 20,
+
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+
+                overflow: 'hidden',
+
+                shadowColor: '#000',
+                shadowOffset: {
+                  width: 0,
+                  height: 6,
+                },
+                shadowOpacity: 0.2,
+                shadowRadius: 10,
+                elevation: 8,
               }}
-              keyExtractor={(item) => item.id?.toString() || item.titulo}
-              renderItem={({ item }) => (
-                <View
+            >
+              {/* TEXTO */}
+              <View
+                style={{
+                  flex: 1,
+                  paddingRight: 10,
+                }}
+              >
+                <Text
+                  numberOfLines={2}
                   style={{
-                    width: width - 40,
-                    marginHorizontal: 20,
-                    backgroundColor: item.color || '#ef4444',
-                    borderRadius: 30,
-                    padding: 25,
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    minHeight: 180,
-                    shadowColor: item.color || '#ef4444',
-                    shadowOffset: { width: 0, height: 10 },
-                    shadowOpacity: 0.3,
-                    shadowRadius: 15,
-                    elevation: 10,
+                    color: '#fff',
+                    fontSize: 24,
+                    fontWeight: '800',
                   }}
                 >
-                  <View style={{ width: '65%' }}>
-                    <Text
-                      style={{
-                        color: '#fff',
-                        fontSize: 26,
-                        fontWeight: '800',
-                        textShadowColor: 'rgba(0,0,0,0.1)',
-                        textShadowOffset: { width: 1, height: 1 },
-                        textShadowRadius: 5,
-                      }}
-                    >
-                      {item.titulo}
-                    </Text>
+                  {item.titulo}
+                </Text>
 
-                    <Text
-                      style={{
-                        color: '#fff',
-                        opacity: 0.9,
-                        marginTop: 10,
-                        fontSize: 15,
-                        lineHeight: 20,
-                      }}
-                    >
-                      {item.descripcion}
-                    </Text>
-
-                    <TouchableOpacity
-                      style={{
-                        backgroundColor: '#fff',
-                        marginTop: 20,
-                        paddingVertical: 12,
-                        borderRadius: 16,
-                        width: 130,
-                        shadowColor: '#000',
-                        shadowOffset: { width: 0, height: 4 },
-                        shadowOpacity: 0.1,
-                        shadowRadius: 5,
-                        elevation: 3,
-                      }}
-                    >
-                      <Text
-                        style={{
-                          textAlign: 'center',
-                          color: item.color || '#dc2626',
-                          fontWeight: 'bold',
-                          fontSize: 15,
-                        }}
-                      >
-                        Ver Oferta
-                      </Text>
-                    </TouchableOpacity>
-                  </View>
-
-                  {item.imagen ? (
-                    <Image 
-                      source={{ uri: item.imagen }} 
-                      style={{ width: 100, height: 100, borderRadius: 20 }}
-                      resizeMode="contain"
-                    />
-                  ) : (
-                    <Text style={{ fontSize: 75, opacity: 0.9 }}>🔥</Text>
-                  )}
-                </View>
-              )}
-            />
-            
-            {/* INDICADORES (DOTS) */}
-            <View style={{ 
-              flexDirection: 'row', 
-              justifyContent: 'center', 
-              marginTop: 15,
-              gap: 8 
-            }}>
-              {banners.map((_, i) => (
-                <View
-                  key={i}
+                <Text
+                  numberOfLines={3}
                   style={{
-                    width: activeBannerIndex === i ? 25 : 8,
-                    height: 8,
-                    borderRadius: 4,
-                    backgroundColor: activeBannerIndex === i ? '#dc2626' : '#d1d5db',
+                    color: '#fff',
+                    opacity: 0.9,
+                    marginTop: 10,
+                    fontSize: 15,
+                    lineHeight: 22,
                   }}
-                />
-              ))}
+                >
+                  {item.descripcion}
+                </Text>
+
+                <TouchableOpacity
+                  activeOpacity={0.8}
+                  style={{
+                    backgroundColor: isDark
+                      ? '#0f172a'
+                      : '#ffffff',
+
+                    marginTop: 18,
+
+                    alignSelf: 'flex-start',
+
+                    paddingHorizontal: 18,
+                    paddingVertical: 11,
+
+                    borderRadius: 15,
+                  }}
+                >
+                  <Text
+                    style={{
+                      color: isDark
+                        ? '#ffffff'
+                        : item.color || '#dc2626',
+
+                      fontWeight: '700',
+                      fontSize: 14,
+                    }}
+                  >
+                    Ver oferta
+                  </Text>
+                </TouchableOpacity>
+              </View>
+
+              {/* IMAGEN */}
+              <View
+                style={{
+                  width: 110,
+                  height: 110,
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                }}
+              >
+                {item.imagen ? (
+                  <Image
+                    source={{ uri: item.imagen }}
+                    style={{
+                      width: 100,
+                      height: 100,
+                      borderRadius: 20,
+                    }}
+                    resizeMode="contain"
+                  />
+                ) : (
+                  <Text
+                    style={{
+                      fontSize: 65,
+                    }}
+                  >
+                    🔥
+                  </Text>
+                )}
+              </View>
             </View>
           </View>
-        ) : null}
+        )}
+      />
+
+      {/* INDICADORES */}
+      <View
+        style={{
+          flexDirection: 'row',
+          justifyContent: 'center',
+          alignItems: 'center',
+
+          marginTop: 14,
+        }}
+      >
+        {banners.map((_, i) => (
+          <View
+            key={i}
+            style={{
+              width: activeBannerIndex === i ? 24 : 8,
+              height: 8,
+
+              borderRadius: 20,
+
+              marginHorizontal: 4,
+
+              backgroundColor:
+                activeBannerIndex === i
+                  ? '#dc2626'
+                  : isDark
+                  ? '#334155'
+                  : '#d1d5db',
+            }}
+          />
+        ))}
       </View>
+    </View>
+  ) : null}
+</View>
 
 
       {/* BUSCADOR DE CATEGORÍAS (DEBAJO DEL CARRUSEL) */}
-      <View style={{ 
-        marginHorizontal: 20, 
-        marginTop: 25, 
-        backgroundColor: '#fff',
-        borderRadius: 22,
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingHorizontal: 18,
-        height: 60,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.08,
-        shadowRadius: 10,
-        elevation: 5,
-        borderWidth: 1,
-        borderColor: '#f3f4f6'
-      }}>
-        <View style={{ 
-          backgroundColor: '#fee2e2', 
-          width: 38, height: 38, 
-          borderRadius: 12, 
-          justifyContent: 'center', 
-          alignItems: 'center',
-          marginRight: 12
-        }}>
+      <View 
+        className="mx-5 mt-6 bg-white dark:bg-slate-900 rounded-3xl flex-row items-center px-[18px] h-[60px] shadow-sm border border-gray-100 dark:border-slate-800"
+      >
+        <View className="bg-red-100 dark:bg-red-900/30 w-[38px] h-[38px] rounded-xl justify-center items-center mr-3">
           <Ionicons name="search" size={20} color="#dc2626" />
         </View>
         <TextInput
-          style={{
-            flex: 1,
-            fontSize: 15,
-            color: '#1f2937',
-            fontWeight: '500'
-          }}
+          className="flex-1 text-[15px] text-gray-800 dark:text-gray-100 font-medium"
           placeholder="Busca por categorías..."
           placeholderTextColor="#9ca3af"
           value={searchCategoria}
@@ -479,27 +495,9 @@ export default function HomeScreen() {
             <AnimatedButton
               key={chip.id}
               haptic={Haptics.ImpactFeedbackStyle.Light}
-              style={{
-                backgroundColor: '#fff',
-                paddingHorizontal: 16,
-                paddingVertical: 10,
-                borderRadius: 14,
-                flexDirection: 'row',
-                alignItems: 'center',
-                borderWidth: 1,
-                borderColor: '#f3f4f6',
-                shadowColor: '#000',
-                shadowOffset: { width: 0, height: 2 },
-                shadowOpacity: 0.05,
-                shadowRadius: 5,
-                elevation: 2
-              }}
+              className="bg-white dark:bg-slate-900 px-4 py-2.5 rounded-2xl flex-row items-center border border-gray-100 dark:border-slate-800 shadow-sm"
             >
-              <Text style={{ 
-                color: '#4b5563', 
-                fontWeight: '600', 
-                fontSize: 14 
-              }}>
+              <Text className="text-gray-600 dark:text-gray-300 font-semibold text-sm">
                 {chip.label}
               </Text>
             </AnimatedButton>
@@ -514,12 +512,7 @@ export default function HomeScreen() {
         }}
       >
         <Text
-          style={{
-            fontSize: 22,
-            fontWeight: 'bold',
-            color: '#7f1d1d',
-            marginBottom: 15,
-          }}
+          className="text-[22px] font-bold text-red-900 dark:text-red-400 mb-[15px]"
         >
           Categorías
         </Text>
@@ -545,21 +538,9 @@ export default function HomeScreen() {
                 }}
                 onPress={() => handleCategoriaPress(categoria)}
               >
-                <View style={{
-                  backgroundColor: '#fff',
-                  width: 80,
-                  height: 80,
-                  borderRadius: 40,
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  shadowColor: categoria.color || '#dc2626',
-                  shadowOffset: { width: 0, height: 4 },
-                  shadowOpacity: 0.1,
-                  shadowRadius: 8,
-                  elevation: 4,
-                  borderWidth: 2,
-                  borderColor: '#fff'
-                }}>
+                <View 
+                  className="bg-white dark:bg-slate-900 w-20 h-20 rounded-full justify-center items-center shadow-md border-2 border-white dark:border-slate-800"
+                >
                   <MaterialCommunityIcons
                     name={categoria.icono as any}
                     size={36}
@@ -568,12 +549,7 @@ export default function HomeScreen() {
                 </View>
 
                 <Text
-                  style={{
-                    marginTop: 8,
-                    fontWeight: '700',
-                    color: '#374151',
-                    fontSize: 12
-                  }}
+                  className="mt-2 font-bold text-gray-700 dark:text-gray-300 text-[12px]"
                 >
                   {categoria.nombre}
                 </Text>
@@ -581,7 +557,7 @@ export default function HomeScreen() {
             ))
           )}
           {!loading && categorias.filter(c => c.nombre.toLowerCase().includes(searchCategoria.toLowerCase())).length === 0 && (
-             <Text style={{ color: '#9ca3af', fontStyle: 'italic', marginTop: 30 }}>No se encontraron categorías</Text>
+             <Text style={{ color: isDark ? '#4b5563' : '#9ca3af', fontStyle: 'italic', marginTop: 30 }}>No se encontraron categorías</Text>
           )}
         </ScrollView>
 
@@ -597,11 +573,7 @@ export default function HomeScreen() {
       >
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 15 }}>
           <Text
-            style={{
-              fontSize: 22,
-              fontWeight: 'bold',
-              color: '#7f1d1d',
-            }}
+            className="text-[22px] font-bold text-red-900 dark:text-red-400"
           >
             Productos populares
           </Text>
@@ -612,11 +584,13 @@ export default function HomeScreen() {
                disabled={paginaProductos === 0}
                style={{
                  width: 35, height: 35, borderRadius: 10,
-                 backgroundColor: paginaProductos === 0 ? '#e5e7eb' : '#dc262620',
+                 backgroundColor: paginaProductos === 0 
+                   ? (isDark ? '#1e293b' : '#e5e7eb') 
+                   : (isDark ? '#dc262630' : '#dc262620'),
                  justifyContent: 'center', alignItems: 'center'
                }}
              >
-               <Ionicons name="chevron-back" size={20} color={paginaProductos === 0 ? '#9ca3af' : '#dc2626'} />
+               <Ionicons name="chevron-back" size={20} color={paginaProductos === 0 ? (isDark ? '#4b5563' : '#9ca3af') : '#dc2626'} />
              </TouchableOpacity>
              
              <TouchableOpacity 
@@ -628,11 +602,13 @@ export default function HomeScreen() {
                disabled={(paginaProductos + 1) * PRODUCTOS_POR_PAGINA >= productosPopulares.length}
                style={{
                  width: 35, height: 35, borderRadius: 10,
-                 backgroundColor: (paginaProductos + 1) * PRODUCTOS_POR_PAGINA >= productosPopulares.length ? '#e5e7eb' : '#dc262620',
+                 backgroundColor: (paginaProductos + 1) * PRODUCTOS_POR_PAGINA >= productosPopulares.length 
+                   ? (isDark ? '#1e293b' : '#e5e7eb') 
+                   : (isDark ? '#dc262630' : '#dc262620'),
                  justifyContent: 'center', alignItems: 'center'
                }}
              >
-               <Ionicons name="chevron-forward" size={20} color={(paginaProductos + 1) * PRODUCTOS_POR_PAGINA >= productosPopulares.length ? '#9ca3af' : '#dc2626'} />
+               <Ionicons name="chevron-forward" size={20} color={(paginaProductos + 1) * PRODUCTOS_POR_PAGINA >= productosPopulares.length ? (isDark ? '#4b5563' : '#9ca3af') : '#dc2626'} />
              </TouchableOpacity>
           </View>
         </View>
@@ -640,12 +616,14 @@ export default function HomeScreen() {
         {loading ? (
           [1, 2, 3].map((i) => (
             <View key={i} style={{ 
-              backgroundColor: '#fff', 
+              backgroundColor: isDark ? '#0f172a' : '#fff', 
               borderRadius: 25, 
               padding: 18, 
               marginBottom: 18, 
               flexDirection: 'row', 
-              alignItems: 'center' 
+              alignItems: 'center',
+              borderWidth: isDark ? 1 : 0,
+              borderColor: isDark ? '#1e293b' : 'transparent',
             }}>
               <Skeleton width={85} height={85} borderRadius={22} />
               <View style={{ flex: 1, marginLeft: 16 }}>
@@ -662,31 +640,12 @@ export default function HomeScreen() {
             <AnimatedButton
               key={producto.id?.toString() || producto.nombre}
               haptic={Haptics.ImpactFeedbackStyle.Light}
-              style={{
-                backgroundColor: '#fff',
-                borderRadius: 25,
-                padding: 18,
-                marginBottom: 18,
-                flexDirection: 'row',
-                alignItems: 'center',
-                shadowColor: '#000',
-                shadowOffset: { width: 0, height: 5 },
-                shadowOpacity: 0.08,
-                shadowRadius: 8,
-                elevation: 4,
-              }}
+              className="bg-white dark:bg-slate-900 rounded-3xl p-4 mb-4 flex-row items-center shadow-sm border border-gray-50 dark:border-slate-800"
               onPress={() => producto.id && router.push({ pathname: '/producto/[id]', params: { id: producto.id.toString() } })}
             >
               {/* EMOJI */}
               <View
-                style={{
-                  width: 85,
-                  height: 85,
-                  borderRadius: 22,
-                  backgroundColor: '#fee2e2',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                }}
+                className="w-[85px] h-[85px] rounded-2xl bg-red-50 dark:bg-red-900/20 justify-center items-center"
               >
                 <Text style={{ fontSize: 45 }}>{producto.emoji}</Text>
               </View>
@@ -699,32 +658,19 @@ export default function HomeScreen() {
                 }}
               >
                 <Text
-                  style={{
-                    fontSize: 18,
-                    fontWeight: 'bold',
-                    color: '#111827',
-                  }}
+                  className="text-lg font-bold text-gray-900 dark:text-gray-100"
                 >
                   {producto.nombre}
                 </Text>
 
                 <Text
-                  style={{
-                    color: '#6b7280',
-                    marginTop: 5,
-                    fontSize: 13,
-                  }}
+                  className="text-gray-500 dark:text-gray-400 mt-1 text-[13px]"
                 >
                   {producto.descripcion}
                 </Text>
 
                 <Text
-                  style={{
-                    color: '#dc2626',
-                    fontWeight: 'bold',
-                    marginTop: 10,
-                    fontSize: 18,
-                  }}
+                  className="text-red-600 dark:text-red-500 font-bold mt-2 text-lg"
                 >
                   {formatPrice(producto.precio)}
                 </Text>
@@ -750,20 +696,13 @@ export default function HomeScreen() {
                 
                 <AnimatedButton
                   haptic={Haptics.ImpactFeedbackStyle.Light}
-                  style={{
-                    backgroundColor: '#fee2e2',
-                    width: 50,
-                    height: 50,
-                    borderRadius: 16,
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                  }}
+                  className="bg-red-50 dark:bg-red-900/20 w-[50px] h-[50px] rounded-2xl justify-center items-center"
                   onPress={() => toggleFavorito(producto)}
                 >
                   <Ionicons 
                     name={favoritos.includes(producto.id || 0) ? "heart" : "heart-outline"} 
                     size={24} 
-                    color={favoritos.includes(producto.id || 0) ? "#dc2626" : "#dc2626"} 
+                    color="#dc2626" 
                   />
                 </AnimatedButton>
               </View>

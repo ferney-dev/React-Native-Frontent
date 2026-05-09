@@ -16,12 +16,15 @@ import { useRouter } from 'expo-router';
 import * as Haptics from 'expo-haptics';
 import { AnimatedButton } from '../components/AnimatedButton';
 import { ConfettiEffect } from '../components/ConfettiEffect';
+import { useTheme } from '../context/ThemeContext';
 
 
 
 
 export default function CarritoScreen() {
   const router = useRouter();
+  const { colorScheme } = useTheme();
+  const isDark = colorScheme === 'dark';
   const [carritoItems, setCarritoItems] = useState<Carrito[]>([]);
 
   const [totales, setTotales] = useState<CarritoTotales | null>(null);
@@ -265,25 +268,18 @@ export default function CarritoScreen() {
 
   if (loading) {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#fff5f5' }}>
+      <View className="flex-1 justify-center items-center bg-[#fff5f5] dark:bg-slate-950">
         <ActivityIndicator size="large" color="#dc2626" />
-        <Text style={{ marginTop: 10, color: '#7f1d1d' }}>Cargando carrito...</Text>
+        <Text className="mt-[10px] text-red-900 dark:text-red-400">Cargando carrito...</Text>
       </View>
     );
   }
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#fff5f5' }}>
+    <View className="flex-1 bg-[#fff5f5] dark:bg-slate-950">
       {/* HEADER */}
       <View
-        style={{
-          backgroundColor: '#b91c1c',
-          paddingTop: 60,
-          paddingBottom: 20,
-          paddingHorizontal: 20,
-          borderBottomLeftRadius: 30,
-          borderBottomRightRadius: 30,
-        }}
+        className="bg-[#b91c1c] dark:bg-slate-900 pt-[60px] pb-5 px-5 rounded-b-[30px]"
       >
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 15 }}>
           <TouchableOpacity onPress={() => router.back()}>
@@ -328,30 +324,11 @@ export default function CarritoScreen() {
           carritoItems.map((item) => (
             <View
               key={item.id?.toString() || `${item.id_producto}`}
-              style={{
-                backgroundColor: '#fff',
-                borderRadius: 25,
-                padding: 18,
-                marginBottom: 18,
-                flexDirection: 'row',
-                alignItems: 'center',
-                shadowColor: '#000',
-                shadowOffset: { width: 0, height: 5 },
-                shadowOpacity: 0.08,
-                shadowRadius: 8,
-                elevation: 4,
-              }}
+              className="bg-white dark:bg-slate-900 rounded-[25px] p-[18px] mb-[18px] flex-row items-center shadow-sm border border-gray-50 dark:border-slate-800"
             >
               {/* EMOJI */}
               <View
-                style={{
-                  width: 70,
-                  height: 70,
-                  borderRadius: 22,
-                  backgroundColor: '#fee2e2',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                }}
+                className="w-[70px] h-[70px] rounded-[22px] bg-red-100 dark:bg-red-900/20 justify-center items-center"
               >
                 <Text style={{ fontSize: 35 }}>{item.emoji || '🍽️'}</Text>
               </View>
@@ -359,11 +336,7 @@ export default function CarritoScreen() {
               {/* INFO */}
               <View style={{ flex: 1, marginLeft: 16 }}>
                 <Text
-                  style={{
-                    fontSize: 16,
-                    fontWeight: 'bold',
-                    color: '#111827',
-                  }}
+                  className="text-base font-bold text-gray-900 dark:text-gray-100"
                 >
                   {item.producto_nombre}
                 </Text>
@@ -384,32 +357,18 @@ export default function CarritoScreen() {
               <View style={{ alignItems: 'center' }}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
                   <TouchableOpacity
-                    style={{
-                      backgroundColor: '#fee2e2',
-                      width: 30,
-                      height: 30,
-                      borderRadius: 15,
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                    }}
+                    className="bg-red-100 dark:bg-red-900/30 w-[30px] h-[30px] rounded-full justify-center items-center"
                     onPress={() => item.id && updateCantidad(item.id, item.cantidad - 1)}
                   >
                     <Ionicons name="remove" size={18} color="#dc2626" />
                   </TouchableOpacity>
                   
-                  <Text style={{ marginHorizontal: 12, fontSize: 16, fontWeight: 'bold' }}>
+                  <Text className="mx-3 text-base font-bold text-gray-900 dark:text-gray-100">
                     {item.cantidad}
                   </Text>
                   
                   <TouchableOpacity
-                    style={{
-                      backgroundColor: '#fee2e2',
-                      width: 30,
-                      height: 30,
-                      borderRadius: 15,
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                    }}
+                    className="bg-red-100 dark:bg-red-900/30 w-[30px] h-[30px] rounded-full justify-center items-center"
                     onPress={() => item.id && updateCantidad(item.id, item.cantidad + 1)}
                   >
                     <Ionicons name="add" size={18} color="#dc2626" />
@@ -417,12 +376,7 @@ export default function CarritoScreen() {
                 </View>
                 
                 <TouchableOpacity
-                  style={{
-                    backgroundColor: '#fee2e2',
-                    paddingHorizontal: 12,
-                    paddingVertical: 6,
-                    borderRadius: 12,
-                  }}
+                  className="bg-red-100 dark:bg-red-900/30 px-3 py-[6px] rounded-xl"
                   onPress={() => item.id && removeFromCarrito(item.id)}
                 >
                   <Text style={{ color: '#dc2626', fontSize: 12, fontWeight: 'bold' }}>
@@ -437,7 +391,7 @@ export default function CarritoScreen() {
         {/* DOMICILIO */}
         {carritoItems.length > 0 && (
           <View style={{ marginTop: 20 }}>
-            <Text style={{ fontSize: 18, fontWeight: 'bold', color: '#7f1d1d', marginBottom: 10 }}>
+            <Text className="text-lg font-bold text-red-900 dark:text-red-400 mb-2">
               Zona de domicilio
             </Text>
             
@@ -445,34 +399,29 @@ export default function CarritoScreen() {
               {domicilios.map((domicilio) => (
                 <TouchableOpacity
                   key={domicilio.id?.toString()}
-                  style={{
-                    backgroundColor: domicilioSeleccionado?.id === domicilio.id ? '#dc2626' : '#fff',
-                    borderWidth: 2,
-                    borderColor: '#dc2626',
-                    borderRadius: 15,
-                    padding: 15,
-                    marginRight: 10,
-                    minWidth: 120,
-                    alignItems: 'center',
-                  }}
+                  className={`rounded-[15px] p-[15px] mr-[10px] min-w-[120px] items-center border-2 ${
+                    domicilioSeleccionado?.id === domicilio.id 
+                      ? 'bg-red-600 border-red-600' 
+                      : 'bg-white dark:bg-slate-900 border-red-600'
+                  }`}
                   onPress={() => setDomicilioSeleccionado(domicilio)}
                 >
                   <Text style={{ 
-                    color: domicilioSeleccionado?.id === domicilio.id ? '#fff' : '#dc2626',
+                    color: domicilioSeleccionado?.id === domicilio.id ? '#fff' : (isDark ? '#ef4444' : '#dc2626'),
                     fontWeight: 'bold',
                     textAlign: 'center'
                   }}>
                     {domicilio.zona}
                   </Text>
                   <Text style={{ 
-                    color: domicilioSeleccionado?.id === domicilio.id ? '#fecaca' : '#6b7280',
+                    color: domicilioSeleccionado?.id === domicilio.id ? '#fecaca' : (isDark ? '#94a3b8' : '#6b7280'),
                     fontSize: 12,
                     marginTop: 5
                   }}>
                     {formatPrice(domicilio.precio)}
                   </Text>
                   <Text style={{ 
-                    color: domicilioSeleccionado?.id === domicilio.id ? '#fecaca' : '#9ca3af',
+                    color: domicilioSeleccionado?.id === domicilio.id ? '#fecaca' : (isDark ? '#64748b' : '#9ca3af'),
                     fontSize: 11,
                     marginTop: 2
                   }}>
@@ -487,22 +436,15 @@ export default function CarritoScreen() {
         {/* CUPÓN */}
         {carritoItems.length > 0 && (
           <View style={{ marginTop: 20 }}>
-            <Text style={{ fontSize: 18, fontWeight: 'bold', color: '#7f1d1d', marginBottom: 10 }}>
+            <Text className="text-lg font-bold text-red-900 dark:text-red-400 mb-2">
               Cupón de descuento
             </Text>
             
             <View style={{ flexDirection: 'row', gap: 10 }}>
               <TextInput
-                style={{
-                  flex: 1,
-                  backgroundColor: '#fff',
-                  borderWidth: 2,
-                  borderColor: '#dc2626',
-                  borderRadius: 15,
-                  padding: 15,
-                  fontSize: 16,
-                }}
+                className="flex-1 bg-white dark:bg-slate-900 border-2 border-red-600 rounded-[15px] p-[15px] text-base text-gray-900 dark:text-gray-100"
                 placeholder="Ingresa código del cupón"
+                placeholderTextColor={isDark ? "#4b5563" : "#9ca3af"}
                 value={cupon}
                 onChangeText={setCupon}
                 autoCapitalize="characters"
@@ -538,32 +480,21 @@ export default function CarritoScreen() {
 
         {/* RESUMEN */}
         {carritoItems.length > 0 && totales && (
-          <View style={{
-            backgroundColor: '#fff',
-            borderRadius: 25,
-            padding: 20,
-            marginTop: 20,
-            marginBottom: 30,
-            shadowColor: '#000',
-            shadowOffset: { width: 0, height: 5 },
-            shadowOpacity: 0.08,
-            shadowRadius: 8,
-            elevation: 4,
-          }}>
-            <Text style={{ fontSize: 18, fontWeight: 'bold', color: '#7f1d1d', marginBottom: 15 }}>
+          <View className="bg-white dark:bg-slate-900 rounded-[25px] p-5 mt-5 mb-[30px] shadow-sm border border-gray-50 dark:border-slate-800">
+            <Text className="text-lg font-bold text-red-900 dark:text-red-400 mb-[15px]">
               Resumen del pedido
             </Text>
             
             <View style={{ gap: 10 }}>
               <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                <Text style={{ color: '#6b7280' }}>Subtotal</Text>
-                <Text style={{ fontWeight: 'bold' }}>{formatPrice(totales.total_precio)}</Text>
+                <Text className="text-gray-500 dark:text-gray-400">Subtotal</Text>
+                <Text className="font-bold text-gray-900 dark:text-gray-100">{formatPrice(totales.total_precio)}</Text>
               </View>
               
               {domicilioSeleccionado && (
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                  <Text style={{ color: '#6b7280' }}>Domicilio ({domicilioSeleccionado.zona})</Text>
-                  <Text style={{ fontWeight: 'bold' }}>{formatPrice(domicilioSeleccionado.precio)}</Text>
+                  <Text className="text-gray-500 dark:text-gray-400">Domicilio ({domicilioSeleccionado.zona})</Text>
+                  <Text className="font-bold text-gray-900 dark:text-gray-100">{formatPrice(domicilioSeleccionado.precio)}</Text>
                 </View>
               )}
               
@@ -581,10 +512,10 @@ export default function CarritoScreen() {
                 justifyContent: 'space-between',
                 paddingTop: 10,
                 borderTopWidth: 2,
-                borderTopColor: '#fee2e2'
+                borderTopColor: isDark ? '#1e293b' : '#fee2e2'
               }}>
-                <Text style={{ fontSize: 18, fontWeight: 'bold', color: '#7f1d1d' }}>Total</Text>
-                <Text style={{ fontSize: 18, fontWeight: 'bold', color: '#dc2626' }}>
+                <Text className="text-lg font-bold text-red-900 dark:text-red-400">Total</Text>
+                <Text className="text-lg font-bold text-red-600 dark:text-red-500">
                   {formatPrice(calcularTotalConDescuento())}
                 </Text>
               </View>

@@ -3,9 +3,12 @@ import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from 'react-nati
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useTheme } from '../../context/ThemeContext';
 
 export default function AdminScreen() {
   const router = useRouter();
+  const { colorScheme } = useTheme();
+  const isDark = colorScheme === 'dark';
 
   const adminOptions = [
     { id: 1, title: 'Gestionar Productos', icon: 'fast-food', color: '#dc2626', route: '/admin/productos' },
@@ -17,9 +20,9 @@ export default function AdminScreen() {
   ];
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, isDark && styles.containerDark]}>
       <LinearGradient
-        colors={['#b91c1c', '#dc2626']}
+        colors={isDark ? ['#0f172a', '#1e293b'] : ['#b91c1c', '#dc2626']}
         style={styles.header}
       >
         <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
@@ -34,21 +37,21 @@ export default function AdminScreen() {
           {adminOptions.map((option) => (
             <TouchableOpacity 
               key={option.id} 
-              style={styles.card}
+              style={[styles.card, isDark && styles.cardDark]}
               onPress={() => router.push(option.route as any)}
             >
-
-              <View style={[styles.iconContainer, { backgroundColor: option.color + '20' }]}>
+ 
+              <View style={[styles.iconContainer, { backgroundColor: isDark ? option.color + '30' : option.color + '20' }]}>
                 <Ionicons name={option.icon as any} size={32} color={option.color} />
               </View>
-              <Text style={styles.cardTitle}>{option.title}</Text>
-              <Ionicons name="chevron-forward" size={16} color="#9ca3af" />
+              <Text style={[styles.cardTitle, isDark && styles.textDark]}>{option.title}</Text>
+              <Ionicons name="chevron-forward" size={16} color={isDark ? "#4b5563" : "#9ca3af"} />
             </TouchableOpacity>
           ))}
         </View>
 
         <TouchableOpacity 
-          style={styles.logoutBtn}
+          style={[styles.logoutBtn, isDark && styles.logoutBtnDark]}
           onPress={() => router.replace('/login')}
         >
           <Ionicons name="log-out-outline" size={20} color="#dc2626" />
@@ -107,5 +110,11 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     gap: 10
   },
-  logoutTxt: { color: '#dc2626', fontSize: 16, fontWeight: '700' }
+  logoutTxt: { color: '#dc2626', fontSize: 16, fontWeight: '700' },
+
+  // Dark styles
+  containerDark: { backgroundColor: '#020617' },
+  cardDark: { backgroundColor: '#0f172a', borderColor: '#1e293b', borderWidth: 1 },
+  textDark: { color: '#f8fafc' },
+  logoutBtnDark: { backgroundColor: '#0f172a', borderColor: '#1e1b1b' },
 });

@@ -12,9 +12,12 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { productosApi, favoritosApi, carritoApi } from '../../services/api';
 import { Producto } from '../../types';
+import { useTheme } from '../../context/ThemeContext';
 
 export default function OfertasScreen() {
   const router = useRouter();
+  const { colorScheme } = useTheme();
+  const isDark = colorScheme === 'dark';
   const [productosOferta, setProductosOferta] = useState<Producto[]>([]);
   const [loading, setLoading] = useState(true);
   const [favoritos, setFavoritos] = useState<number[]>([]);
@@ -115,23 +118,25 @@ export default function OfertasScreen() {
 
   if (loading) {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#fff5f5' }}>
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: isDark ? '#020617' : '#fff5f5' }}>
         <ActivityIndicator size="large" color="#dc2626" />
-        <Text style={{ marginTop: 10, color: '#7f1d1d' }}>Cargando ofertas...</Text>
+        <Text style={{ marginTop: 10, color: isDark ? '#f8fafc' : '#7f1d1d' }}>Cargando ofertas...</Text>
       </View>
     );
   }
   return (
-    <View style={{ flex: 1, backgroundColor: '#fff5f5' }}>
+    <View style={{ flex: 1, backgroundColor: isDark ? '#020617' : '#fff5f5' }}>
       {/* HEADER */}
       <View
         style={{
-          backgroundColor: '#b91c1c',
+          backgroundColor: isDark ? '#0f172a' : '#b91c1c',
           paddingTop: 60,
           paddingBottom: 20,
           paddingHorizontal: 20,
           borderBottomLeftRadius: 30,
           borderBottomRightRadius: 30,
+          borderWidth: isDark ? 1 : 0,
+          borderColor: isDark ? '#1e293b' : 'transparent',
         }}
       >
         <Text
@@ -162,11 +167,11 @@ export default function OfertasScreen() {
       >
         {productosOferta.length === 0 ? (
           <View style={{ alignItems: 'center', marginTop: 50 }}>
-            <Ionicons name="pricetag-outline" size={80} color="#d1d5db" />
-            <Text style={{ fontSize: 18, color: '#6b7280', marginTop: 20, textAlign: 'center' }}>
+            <Ionicons name="pricetag-outline" size={80} color={isDark ? "#334155" : "#d1d5db"} />
+            <Text style={{ fontSize: 18, color: isDark ? '#94a3b8' : '#6b7280', marginTop: 20, textAlign: 'center' }}>
               No hay ofertas disponibles
             </Text>
-            <Text style={{ fontSize: 14, color: '#9ca3af', marginTop: 10, textAlign: 'center' }}>
+            <Text style={{ fontSize: 14, color: isDark ? '#4b5563' : '#9ca3af', marginTop: 10, textAlign: 'center' }}>
               Vuelve pronto para ver nuestras promociones
             </Text>
           </View>
@@ -175,7 +180,7 @@ export default function OfertasScreen() {
             <View
               key={producto.id?.toString() || producto.nombre}
               style={{
-                backgroundColor: '#fff',
+                backgroundColor: isDark ? '#0f172a' : '#fff',
                 borderRadius: 25,
                 padding: 18,
                 marginBottom: 18,
@@ -186,6 +191,8 @@ export default function OfertasScreen() {
                 shadowOpacity: 0.08,
                 shadowRadius: 8,
                 elevation: 4,
+                borderWidth: isDark ? 1 : 0,
+                borderColor: isDark ? '#1e293b' : 'transparent',
               }}
             >
               {/* EMOJI */}
@@ -194,7 +201,7 @@ export default function OfertasScreen() {
                   width: 85,
                   height: 85,
                   borderRadius: 22,
-                  backgroundColor: '#fee2e2',
+                  backgroundColor: isDark ? '#dc262620' : '#fee2e2',
                   justifyContent: 'center',
                   alignItems: 'center',
                 }}
@@ -209,7 +216,7 @@ export default function OfertasScreen() {
                     style={{
                       fontSize: 18,
                       fontWeight: 'bold',
-                      color: '#111827',
+                      color: isDark ? '#f8fafc' : '#111827',
                       flex: 1,
                     }}
                   >
@@ -236,7 +243,7 @@ export default function OfertasScreen() {
                 {producto.descripcion && (
                   <Text
                     style={{
-                      color: '#6b7280',
+                      color: isDark ? '#94a3b8' : '#6b7280',
                       marginTop: 5,
                       fontSize: 13,
                     }}
@@ -257,7 +264,7 @@ export default function OfertasScreen() {
                   </Text>
                   
                   <Text style={{ 
-                    color: '#ef4444', 
+                    color: isDark ? '#f87171' : '#ef4444', 
                     fontSize: 12, 
                     textDecorationLine: 'line-through',
                     marginLeft: 8 
@@ -267,7 +274,7 @@ export default function OfertasScreen() {
                 </View>
 
                 {producto.categoria_nombre && (
-                  <Text style={{ color: '#6b7280', fontSize: 12, marginTop: 5 }}>
+                  <Text style={{ color: isDark ? '#64748b' : '#6b7280', fontSize: 12, marginTop: 5 }}>
                     {producto.categoria_nombre}
                   </Text>
                 )}
@@ -292,7 +299,7 @@ export default function OfertasScreen() {
                 
                 <TouchableOpacity
                   style={{
-                    backgroundColor: '#fee2e2',
+                    backgroundColor: isDark ? '#dc262620' : '#fee2e2',
                     width: 50,
                     height: 50,
                     borderRadius: 16,
@@ -304,7 +311,7 @@ export default function OfertasScreen() {
                   <Ionicons 
                     name={favoritos.includes(producto.id || 0) ? "heart" : "heart-outline"} 
                     size={24} 
-                    color={favoritos.includes(producto.id || 0) ? "#dc2626" : "#dc2626"} 
+                    color="#dc2626" 
                   />
                 </TouchableOpacity>
               </View>

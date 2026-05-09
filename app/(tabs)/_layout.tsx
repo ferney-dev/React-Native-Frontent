@@ -2,8 +2,12 @@ import { Tabs } from 'expo-router';
 import React from 'react';
 import { View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useTheme } from '../../context/ThemeContext';
 
 export default function TabLayout() {
+  const { colorScheme } = useTheme();
+  const isDark = colorScheme === 'dark';
+
   return (
     <Tabs
       screenOptions={{
@@ -15,9 +19,11 @@ export default function TabLayout() {
           left: 15,
           right: 15,
           height: 80,
-          backgroundColor: '#ffffff',
+          backgroundColor: isDark ? '#0f172a' : '#ffffff',
           borderRadius: 30,
           borderTopWidth: 0,
+          borderWidth: isDark ? 1 : 0,
+          borderColor: isDark ? '#1e293b' : 'transparent',
 
           shadowColor: '#000',
           shadowOffset: {
@@ -32,7 +38,7 @@ export default function TabLayout() {
         },
 
         tabBarActiveTintColor: '#dc2626',
-        tabBarInactiveTintColor: '#9ca3af',
+        tabBarInactiveTintColor: isDark ? '#64748b' : '#9ca3af',
 
         tabBarLabelStyle: {
           fontSize: 12,
@@ -50,7 +56,9 @@ export default function TabLayout() {
           tabBarIcon: ({ color, focused }) => (
             <View
               style={{
-                backgroundColor: focused ? '#fee2e2' : 'transparent',
+                backgroundColor: focused 
+                  ? (isDark ? '#dc262620' : '#fee2e2') 
+                  : 'transparent',
                 padding: 10,
                 borderRadius: 18,
               }}
@@ -74,7 +82,9 @@ export default function TabLayout() {
     tabBarIcon: ({ color, focused }) => (
       <View
         style={{
-          backgroundColor: focused ? '#fee2e2' : 'transparent',
+          backgroundColor: focused 
+            ? (isDark ? '#dc262620' : '#fee2e2') 
+            : 'transparent',
           padding: 10,
           borderRadius: 18,
         }}
@@ -98,7 +108,9 @@ export default function TabLayout() {
           tabBarIcon: ({ color, focused }) => (
             <View
               style={{
-                backgroundColor: focused ? '#fee2e2' : 'transparent',
+                backgroundColor: focused 
+                  ? (isDark ? '#dc262620' : '#fee2e2') 
+                  : 'transparent',
                 padding: 10,
                 borderRadius: 18,
               }}
@@ -122,7 +134,9 @@ export default function TabLayout() {
           tabBarIcon: ({ color, focused }) => (
             <View
               style={{
-                backgroundColor: focused ? '#fee2e2' : 'transparent',
+                backgroundColor: focused 
+                  ? (isDark ? '#dc262620' : '#fee2e2') 
+                  : 'transparent',
                 padding: 10,
                 borderRadius: 18,
               }}
